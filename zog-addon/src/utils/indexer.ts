@@ -34,18 +34,19 @@ export async function searchIndexer(
       remove_unknown_languages: false,
     },
   };
-  const encoded = Buffer.from(JSON.stringify(config))
-    .toString("base64")
-    .replace(/=+$/, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-  const url = `${BASE}/${encoded}/stream/${type}/${id}.json`;
+  // URL-safe base64 (no padding) without relying on Node Buffer
+  const json = JSON.stringify(config);
+  const b64 =
+    typeof btoa !== "undefined"
+      ? btoa(json).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_")
+      : Buffer.from(json).toString("base64").replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  const url = `${BASE}/${b64}/stream/${type}/${id}.json`;
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (zognet addon)" },
   });
   if (!res.ok) {
-    throw new Error(`indexer ${res.status}`);
+    throw new Error(`indexer ${res.status}: ${await res.text().catch(() => "")}`);
   }
-  const json = (await res.json()) as IndexerResponse;
-  return json.streams ?? [];
+  const jsonRes = (await res.json()) as IndexerResponse;
+  return jsonRes.streams ?? [];
 }

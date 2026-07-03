@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: "ADDON_PUBLIC_URL not set" });
   }
 
-  const streams = await searchIndexer("movie", id, cfg.debirdToken);
+  const streams = await searchIndexer("movie", id, cfg.debirdToken).catch((err) => {
+    console.error(`[stream/movie] indexer error for ${id}:`, err);
+    return [];
+  });
   // dedupe by infoHash
   const seen = new Set<string>();
   const out: unknown[] = [];

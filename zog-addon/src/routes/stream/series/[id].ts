@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: "ADDON_PUBLIC_URL not set" });
   }
 
-  const streams = await searchIndexer("series", id, cfg.debridToken);
+  const streams = await searchIndexer("series", id, cfg.debirdToken).catch((err) => {
+    console.error(`[stream/series] indexer error for ${id}:`, err);
+    return [];
+  });
   const seen = new Set<string>();
   const out: unknown[] = [];
   for (const s of streams) {
