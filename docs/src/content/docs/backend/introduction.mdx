@@ -1,0 +1,33 @@
+---
+title: Introduction
+description: Introduction to the Zog backend server.
+---
+
+Backend is a service you can run and use that syncs user data, for example what movie you watched, your settings, and your color theme. Along with other data like collecting metrics on things like a source's success rate.
+
+## Should you selfhost?
+
+There are pros and cons to selfhosting. If you're not a technical user, selfhosting the backend may be quite the chore, and involve more hassle than it's worth. On the flipside if you are technical, it can be a quite rewarding experience.
+
+If you host your own instance of Zog, it's best paired with your own backend, the latency could be better than using the community backend, you have more accurate metrics that measure what your instance's users are experiencing, and you control your own data!
+
+Another reason to selfhost is reliability. The community backend gets a lot of users, with that it can have higher latency, and is the target of DDoS attacks, which can lead to it being practically unusable on the occasion it is DDoS'd.
+
+## Metrics
+
+The backend exposes an endpoint for [Prometheus metrics](https://prometheus.io/) which allows you to keep track of the backend more easily, it can be accessed on `/metrics`.
+Ex: https://server.fifthwit.net/metrics
+
+To view these metrics properly, you can use the [Zog Metrics Dash](https://github.com/zog-watch/metrics-dash/). Or use a more powerful tool like [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) to better visualize data.
+
+:::caution
+Prometheus + Grafana typically require a VPS, which usually aren't free, so we
+don't recommend you use Prometheus + Grafana unless you already have a VPS, or
+solution to host them.
+:::
+
+## Security
+
+Currently we are working on integration with Cloudflare Turnstile to limit bot traffic.
+
+If you have a domain with Cloudflare you can also use WAF to help secure your backend in the event it's being targeted.

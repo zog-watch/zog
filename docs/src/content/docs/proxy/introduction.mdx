@@ -1,0 +1,17 @@
+---
+title: Introduction
+description: Introduction to the Zog proxy and its functions.
+---
+
+The proxy has **two** functions and is **required** to self host the project entirely. However, you do NOT need to set it up if all your users use the extension instead as it replaces this!
+
+1. The proxy is used to bypass CORS-protected URLs on the client side, allowing users to make requests to CORS protected endpoints without a backend server.
+The proxy is made using [Nitro by UnJS](https://nitro.unjs.io/) which supports building the proxy to work on multiple providers including Cloudflare Workers, AWS Lambda and [more...](https://nitro.unjs.io/deploy)
+
+2. For site admins (self hosters), the proxy is also used to bypass m3u8 stream header restrictions for sites with origin locked streams. Because of this active restriction, this proxy needs to be hosted on a VPS, platform, or home server that's IP is **NOT** blocked by the desired stream.
+
+On the following page there are guides to set up the proxy on VPS, home servers, or other hosting platforms.
+
+:::caution
+Cloudflare and Netlify solutions are no longer effective because they have been heavily abused and most streaming sites now block their IPs. Instead, users and self-hosters should deploy the proxy on residential or private VPS IPs to avoid these ASN bans.
+:::

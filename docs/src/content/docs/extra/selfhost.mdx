@@ -1,0 +1,96 @@
+---
+title: Selfhost
+description: Complete guide to self-deploying Zog with Docker Compose.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+# Guide to Self-Deployment with Docker Compose
+
+<Steps>
+1. **Install Docker and Docker Compose:**
+
+   Ensure that Docker and Docker Compose are installed on your system. You can follow the official Docker documentation for installation instructions:
+   - [Install Docker](https://docs.docker.com/get-docker/)
+
+2. **Create a Docker Compose file:**
+
+   Create a new file named `docker-compose.yml` in your project directory and paste the following content into it:
+
+   ```yaml
+   services:
+     postgres:
+       image: postgres
+       environment:
+         POSTGRES_USER: zog_user
+         POSTGRES_DB: zog
+         POSTGRES_PASSWORD: YourPasswordHere
+       ports:
+         - "5432:5432"
+       networks:
+         - zog-network
+     zog:
+       image: ghcr.io/zog-watch/backend:latest
+       environment:
+         DATABASE_URL: postgresql://zog_user:YourPasswordHere@postgres:5432/zog
+         CRYPTO_SECRET: 32CharacterLongStringHere
+         META_NAME: unofficial-backend
+       ports:
+         - "80:80"
+       depends_on:
+         - postgres
+       networks:
+         - zog-network
+
+     zog-frontend:
+       build:
+         context: https://github.com/zog-watch/zog.git
+         args:
+           TMDB_READ_API_KEY: "YourTMDBReadAPIKeyHere"
+           CORS_PROXY_URL: "https://cors.example.tld https://second.cors.example.tld"
+           BACKEND_URL: "https://backend.example.tld"
+           DMCA_EMAIL: "YourEmail"
+           PWA_ENABLED: "true"
+           APP_DOMAIN: "YourDomainHere"
+           OPENSEARCH_ENABLED: "true"
+           GA_ID: "Google ID Here"
+       ports:
+         - "80:80"
+       networks:
+         - zog-network
+       restart: unless-stopped
+
+     zog-proxy:
+       image: ghcr.io/zog/simple-proxy:latest
+       ports:
+         - "3000:3000"
+       networks:
+         - zog-network
+       restart: unless-stopped
+
+   networks:
+     zog-network:
+       driver: bridge
+   ```
+
+   **Important:**
+   * Replace `YourPasswordHere` with your secure database password.
+   * Generate a strong session secret and replace `32CharacterLongStringHere`.
+   * Replace `TMDBReadAPIKey` with your api key, learn more [here](/client/tmdb).
+   * Replace `YourDomainHere` with whatever you'll be using to access your main site, like `zog.watch`.
+   * Replace `meta__name` and `meta__description`.
+
+3. **Start the Backend:** Open a terminal in the directory containing `docker-compose.yml` and execute:
+
+   ```bash
+   docker compose up --detach
+   ```
+</Steps>
+
+### Accessing Your Backend
+
+Your services should be accessible on `(YourPrivateIP):port`. To share it outside your local network, you'll need to configure port forwarding or cloudflared tunnel.
+
+### Optional: Implementing a Reverse Proxy
+
+To enhance your SSL and domain configuration, it's advisable to establish a reverse proxy, such as Nginx. For an optimal choice in this regard, Cloudflare Zero Trust Tunnel is recommended. You can find more information [here](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/).

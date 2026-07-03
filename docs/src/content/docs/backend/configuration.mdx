@@ -1,0 +1,152 @@
+---
+title: Configuration
+description: Configuration reference for the Zog backend.
+---
+
+The backend can be configured in 2 different ways:
+
+- Make a `.env` file in the working directory of the application (root of repository)
+- Add environment variables to your system (or container)
+
+These different config options are all mutually inclusive, so you can use multiple at the same time if you want to.
+
+:::caution
+With any of these configurations, you have to have at least three variables set
+for the server to function: [`DATABASE_URL`](#database-url-⚠),
+[`CRYPTO_SECRET`](#crypto-secret-⚠) and
+[`META_NAME`](#meta-name-⚠)
+:::
+
+### Method 1 - `.env`
+Example:
+```sh
+CRYPTO_SECRET=6abkbIoK3CPU6EVI2wa26WG26VCb7z8v
+```
+
+### Method 2 - Environment
+
+This method is identical to the `.env` method listed above, but you add the variables to the environment instead of writing it in a file.
+
+# Reference
+## Postgres
+
+### `PG_USER`
+- Type: `string`
+- Example: `zog_user`
+
+Username for Postgres
+
+### `PG_PASSWORD`
+- Type: `string`
+- Example: `Iamaweakpassword`
+
+Password for Postgres using something strong. Generate one [here](https://www.random.org/strings/)
+
+### `PG_DB`
+- Type: `string`
+- Example: `zog_backend`
+
+Database name for Postgres
+
+## Backend
+
+All configurations related to how the backend functions.
+
+### `DATABASE_URL` ⚠
+
+- Type: `string`
+- Example: `postgresql://zog_user:6abkbIoK3CPU6EVI2wa26WG26VCb7z8ve@localhost:5432/zog_backend`
+- Str: postgresql://PG_USER:PG_PASSWORD@postgres(or localhost):PGPORT/PG_DB
+
+Connection URL for postgres instance, should contain the database in the URL.
+
+:::danger
+**Required. The backend will not start if this is not configured.**
+:::
+
+## Cryptography
+
+All configurations related to cryptography.
+
+### `CRYPTO_SECRET` ⚠
+
+- Type: `string`
+
+The secret used to sign sessions. **Must be at least 32 characters long. [Generate here](https://www.random.org/strings/)**
+
+:::danger
+**Required. The backend will not start if this is not configured.**
+:::
+
+## Meta
+
+These options configure how the server will display itself to the frontend.
+
+### `META_NAME` ⚠
+
+- Type: `string`
+- Example: `"Unofficial backend"`
+
+The name of the backend instance, this will be displayed to users who try to create an account.
+
+:::danger
+**Required. The backend will not start if this is not configured.**
+:::
+
+### `META_DESCRIPTION`
+
+- Type: `string`
+- Default: `""`
+- Example: `"This is not an official instance of the backend"`
+
+The description of the backend instance, this will be displayed to users who try to create an account.
+
+## Captcha
+
+All configurations related to adding captcha functionality. Captchas help to protect your server from bot attacks.
+
+### `CAPTCHA`
+
+- Type: `boolean`
+- Default: `false`
+
+Enables [Recaptcha](https://www.google.com/recaptcha/about/) support for user registration and login. [You can follow this guide to create a Recaptcha key](https://cloud.google.com/recaptcha-enterprise/docs/create-key-website#create-key).
+
+:::caution
+If this is enabled, all other captcha related settings are required.
+:::
+
+### `CAPTCHA_CLIENT_KEY`
+
+- Type: `string`
+- Default: `""`
+- Example: `"sjgaJ@3djasFVx"`
+
+[Google Recaptcha](https://www.google.com/recaptcha/about/) secret key.
+
+## TMDB
+All configurations related to adding a private TMDB key.
+Get your [TMDB API KEY](https://www.themoviedb.org/settings/api).
+
+### `TMDB_API_KEY`
+
+- Type: `string`
+- Default: `""`
+- Example: `"sjgaJ@3djasFVefihdjasidygyuiiii9382222222222ahdlx"`
+
+## TRAKT
+
+### `TRAKT_CLIENT_ID`
+
+- Type: `string`
+- Default: `""`
+- Example: `"sjgaJ@3djasFVefihdjasidygyuiiii9382222222222ahdlx"`
+
+### `TRAKT_CLIENT_SECRET`
+
+- Type: `string`
+- Default: `""`
+- Example: `"sjgaJ@3djasFVefihdjasidygyuiiii9382222222222ahdlx"`
+
+Get your [TRAKT API KEY](https://trakt.tv/oauth/applications).
+Click New Application after you've logged in, enter the name of the app (which doesn't matter), and for redirect url, just do https://google.com (it doesn't matter).

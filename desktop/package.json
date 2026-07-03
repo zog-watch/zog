@@ -1,0 +1,101 @@
+{
+  "name": "zog-desktop",
+  "productName": "Zog",
+  "version": "1.2.6",
+  "description": "Desktop app for Zog",
+  "author": "Zog",
+  "main": "src/main/main.js",
+  "packageManager": "pnpm@9.14.4",
+  "scripts": {
+    "start": "electron .",
+    "start:win": "cross-env PLATFORM_OVERRIDE=win32 electron .",
+    "start:mac": "cross-env PLATFORM_OVERRIDE=darwin electron .",
+    "start:linux": "cross-env PLATFORM_OVERRIDE=linux electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "dist": "electron-builder --publish=never",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "cross-env": "^7.0.3",
+    "electron": "^39.3.0",
+    "electron-builder": "^26.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.1.0",
+    "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.7.3"
+  },
+  "build": {
+    "appId": "com.zog.desktop",
+    "productName": "Zog",
+    "directories": {
+      "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "zog-watch",
+      "repo": "zog"
+    },
+    "files": [
+      "**/*",
+      "!extension/**",
+      "!dist/**",
+      "!build/**",
+      "!*.md",
+      "!test.js"
+    ],
+    "mac": {
+      "category": "public.app-category.entertainment",
+      "icon": "app.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "strictVerify": false
+    },
+    "win": {
+      "icon": "logo.png",
+      "target": [
+        "nsis",
+        "zip"
+      ],
+      "requestedExecutionLevel": "asInvoker",
+      "executableName": "Zog"
+    },
+    "linux": {
+      "icon": "logo.png",
+      "target": "AppImage",
+      "category": "AudioVideo"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Zog",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "${productName} Setup ${version}.${ext}",
+      "runAfterFinish": true,
+      "language": "1033",
+      "allowElevation": false,
+      "warningsAsErrors": false,
+      "differentialPackage": false,
+      "multiLanguageInstaller": false,
+      "packElevateHelper": false,
+      "installerIcon": null,
+      "uninstallerIcon": null
+    }
+  }
+}

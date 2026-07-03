@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+
+[build.nixpacksPlan]
+providers = ["node"]
+
+[deploy]
+startCommand = ""
+# This service is not deployed; the userscript is served from GitHub raw content.
+# See userscript/README.md for installation instructions.

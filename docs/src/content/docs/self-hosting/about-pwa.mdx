@@ -1,0 +1,23 @@
+---
+title: PWA vs no-PWA
+description: Learn about Progressive Web App support in Zog self-hosting.
+---
+
+So that clients can have a more native app-like experience on mobile, Zog has a function to support Progressive Web Apps (PWA). You can learn more about what a PWA is [here](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app).
+
+In Zog version 3, PWAs were enabled by default. Unfortunately, PWAs tend to come with caching complications that can be tricky to resolve. That's why we have **disabled** PWAs by default in Zog version 4. If you are upgrading from version 3, please [read our upgrade guide](/client/upgrade) for more information.
+
+:::caution
+Enabling PWAs means that you cannot disable it again - Please only proceed if
+you know what you are doing!
+:::
+
+## If you are running Zog on a hosting platform such as Vercel
+
+If your hosting is building Zog from the source, you can enable PWAs using the [`VITE_PWA_ENABLED`](/client/configuration#vite-pwa-enabled) environment variable.
+
+Setting [`VITE_PWA_ENABLED`](/client/configuration#vite-pwa-enabled) to `true` will generate a [service worker file](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#service_worker) and a [web app manifest](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#the_web_app_manifest) which enable the website to be installed from a [web browser both on Desktop and on Mobile](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_the_web).
+
+## If you are running Zog using the .zip files
+
+If you are downloading the Zog `zip` files from our GitHub and installing them on a static website host, then all you need to do is to make sure to download the [`Zog.pwa.zip`](https://github.com/zog-watch/zog/releases/latest/download/Zog.pwa.zip) file instead of the `Zog.zip` file!

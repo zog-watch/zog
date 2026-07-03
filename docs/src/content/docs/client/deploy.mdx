@@ -1,0 +1,133 @@
+---
+title: Deploy
+description: Deploy the Zog client on various hosting platforms.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+## Method 1 - Cloudflare Pages (Best host)
+
+<Steps>
+1. [Fork Zog](https://github.com/zog-watch/zog/fork) on Github.
+
+2. Go to [Cloudflare pages](https://pages.dev) and click "Sign Up".
+
+3. Create a Cloudflare account.
+
+   :::note
+   If you already have a Cloudflare account you will be redirected to the
+   workers and pages dashboard.
+   :::
+
+4. Now, click the blue "Create" button at the top of the page.
+
+5. By default Cloudflare assumes your creating a worker instead, change the
+   "Workers" tab to "Pages".
+
+6. Select the blue button that says "Connect to git" and then connect the Github
+   account you forked Zog on.
+
+7. Now you can select repositories from your github account, select your fork of
+   Zog and click "Begin setup".
+
+8. Give your project a silly name and select `main` as the production branch.
+
+9. In "Build settings" change the "Build command" to `pnpm build` and the "Build
+   output directory" to `dist`.
+
+10. Select the `Environment variable` drop down and add the **[required variables](/client/configuration)**.
+
+11. Click "Save and Deploy" to watch your new site deploy.
+
+12. Congrats! You have your own version of Zog hosted for **FREE**.
+</Steps>
+
+## Method 2 - Vercel (Might be broken idk)
+
+<Steps>
+1. Click [here](https://github.com/zog-watch/zog/fork) to fork the Zog
+   Github repository.
+
+2. Click [here](https://vercel.com/) to go to Vercel.
+
+3. Sign in using either a GitHub, GitLab, or Bitbucket.
+
+4. Click the "New Project" button on the top right of your dashboard and
+   follow the steps to create a new project for your self hosted version of
+   movie web.
+
+5. After clicking it, you'll be presented with a list of Git repositories that
+   the Git account you've signed up with has write access to.
+
+6. Select your own fork of the Zog Github repository.
+
+7. Configure the environment variables:
+   - `VITE_CORS_PROXY_URL`: Enter your proxy URL here. Make sure to not have a slash at the end of your URL. Example (THIS IS AN EXAMPLE, IT WON'T WORK FOR YOU): `https://test-proxy.test.workers.dev`
+   - `VITE_TMDB_READ_API_KEY`: Enter your TMDB Read Access Token here. Please read [the TMDB page](/client/tmdb) on how to get an API key.
+   - `VITE_BACKEND_URL`: Only set if you have a self-hosted backend. Put in your backend URL. Check out [configuration reference](/client/configuration) for details. Make sure to not have a slash at the end of the URL.
+
+8. Click "Deploy".
+
+9. Congrats! You have your own version of Zog hosted.
+
+10. You may wish to configure a custom domain - Please consult [the Vercel docs
+    for how to do this](https://vercel.com/docs/getting-started-with-vercel/domains).
+</Steps>
+
+## Method 3 - Static Web Host
+
+<Steps>
+1. Download the file `Zog.zip` from the latest release:
+   https://github.com/zog-watch/zog/releases/latest.
+
+2. Extract the ZIP file so you can edit the files.
+
+3. Open `config.js` in an editor such as Notepad, Visual Studio Code or similar.
+
+4. Put your proxy URL in-between the double quotes of `VITE_CORS_PROXY_URL: ""`. Make sure to not have a slash at the end of your URL. Example (THIS IS AN EXAMPLE, IT WON'T WORK FOR YOU): `VITE_CORS_PROXY_URL: "https://test-proxy.test.workers.dev"`
+
+5. Put your TMDB Read Access Token inside the quotes of `VITE_TMDB_READ_API_KEY: ""`. Please read [the TMDB page](/client/tmdb) on how to get an API key.
+
+6. If you have a self-hosted backend server, enter your URL in the `VITE_BACKEND_URL` variable. Check out [configuration reference](/client/configuration) for details. Make sure to not have a slash at the end of the URL.
+
+7. Save the file.
+
+8. Upload **all** of the files to a static website hosting such as:
+   - GitHub Pages
+   - Netlify
+   - Vercel
+   - Etc, [there are lots of options](https://www.staticwebsitehosting.org/).
+
+9. Congrats! You have your own version of Zog hosted.
+</Steps>
+
+## Method 4 - Docker Compose - Home Network
+
+Docker is not recommended! It's much easier to host the static site and use a proxy like nginx to access.
+
+This method is meant for those using a desktop device or single board computer with a minimum of 4GB of RAM such as a [Raspberry Pi](https://www.raspberrypi.com/) to run Zog on their home network for network connected devices.
+
+<Steps>
+1. Ensure you have [docker](https://docs.docker.com/get-docker/) installed. In a newly created directory called `Zog` create a file called `docker-compose.yaml`. Paste the contents of the code block below into this file.
+
+   ```yaml
+   version: "3.8"
+
+   services:
+
+     movieweb:
+       build:
+         context: https://github.com/zog-watch/zog.git#production
+         # args:
+         #   TMDB_READ_API_KEY: ""
+         #   CORS_PROXY_URL: ""
+         #   BACKEND_URL: ""
+       ports:
+         - "80:80"
+       restart: unless-stopped
+   ```
+
+2. Fill in the necessary environment variables (see code block comments above).
+
+3. Start the container with `docker compose up -d`.
+</Steps>

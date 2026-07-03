@@ -1,0 +1,9 @@
+---
+// Custom Head component that adds font preloading via Astro's experimental fonts API
+import type { Props } from '@astrojs/starlight/props';
+import StarlightHead from '@astrojs/starlight/components/Head.astro';
+import { Font } from 'astro:assets';
+---
+
+<Font cssVariable="--font-inter" preload />
+<StarlightHead {...Astro.props}><slot /></StarlightHead>

@@ -1,0 +1,25 @@
+{
+  "name": "zog-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zog streaming platform monorepo (zog.watch)",
+  "packageManager": "pnpm@9.14.4",
+  "author": "Zog",
+  "license": "MIT",
+  "homepage": "https://github.com/zog-watch/zog",
+  "scripts": {
+    "dev:web": "pnpm --filter zog-web dev",
+    "dev:backend": "pnpm --filter zog-backend dev",
+    "dev:proxy": "pnpm --filter zog-proxy dev",
+    "dev:docs": "pnpm --filter zog-docs dev",
+    "build:web": "pnpm --filter zog-web build",
+    "build:backend": "pnpm --filter zog-backend build",
+    "build:proxy": "pnpm --filter zog-proxy build",
+    "build:providers": "pnpm --filter @zog/providers build",
+    "build:docs": "pnpm --filter zog-docs build",
+    "build:extension": "pnpm --filter @zog/extension build",
+    "build:desktop": "pnpm --filter zog-desktop build",
+    "lint": "pnpm -r lint",
+    "prepare": "pnpm --filter @zog/providers build"
+  }
+}

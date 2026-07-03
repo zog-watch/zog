@@ -1,0 +1,83 @@
+{
+  "$schema": "https://railway.app/railway.template.schema.json",
+  "name": "Zog",
+  "description": "Deploy the full Zog streaming stack (web, backend, proxy, docs) on Railway.",
+  "category": "Entertainment",
+  "icon": "https://zog.watch/android-chrome-192x192.png",
+  "readme": "https://github.com/zog-watch/zog/blob/main/README.md",
+  "author": "Zog",
+  "variables": [
+    {
+      "name": "VITE_TMDB_READ_API_KEY",
+      "description": "TMDB API read access token (required). Get it at https://www.themoviedb.org/settings/api",
+      "required": true
+    },
+    {
+      "name": "TMDB_API_KEY",
+      "description": "Same as VITE_TMDB_READ_API_KEY (required for backend metadata).",
+      "required": true
+    },
+    {
+      "name": "CRYPTO_SECRET",
+      "description": "Secret for JWT sessions. Generate with: openssl rand -base64 32",
+      "required": true
+    },
+    {
+      "name": "VITE_BACKEND_URL",
+      "description": "Public URL of the Zog backend service (auto-filled after first deploy).",
+      "default": "https://${{ zog-backend.RAILWAY_PUBLIC_DOMAIN }}"
+    },
+    {
+      "name": "VITE_CORS_PROXY_URL",
+      "description": "Public URL of the Zog proxy service (auto-filled after first deploy).",
+      "default": "https://${{ zog-proxy.RAILWAY_PUBLIC_DOMAIN }}"
+    },
+    {
+      "name": "VITE_M3U8_PROXY_URL",
+      "description": "Public URL of the Zog proxy service for HLS segments (auto-filled after first deploy).",
+      "default": "https://${{ zog-proxy.RAILWAY_PUBLIC_DOMAIN }}"
+    },
+    {
+      "name": "VITE_APP_DOMAIN",
+      "description": "Public URL of the Zog web frontend (auto-filled after first deploy).",
+      "default": "https://${{ zog-web.RAILWAY_PUBLIC_DOMAIN }}"
+    },
+    {
+      "name": "SITE_URL",
+      "description": "Docs site URL.",
+      "default": "https://${{ zog-web.RAILWAY_PUBLIC_DOMAIN }}"
+    },
+    {
+      "name": "BASE_PATH",
+      "description": "Docs base path.",
+      "default": "/docs"
+    },
+    {
+      "name": "DATABASE_URL",
+      "description": "PostgreSQL connection string (auto-filled when Postgres is linked).",
+      "default": "${{ Postgres.DATABASE_URL }}"
+    }
+  ],
+  "services": {
+    "zog-web": {
+      "name": "zog-web",
+      "root": "web",
+      "source": "git@github.com:zog-watch/zog.git"
+    },
+    "zog-backend": {
+      "name": "zog-backend",
+      "root": "backend",
+      "source": "git@github.com:zog-watch/zog.git"
+    },
+    "zog-proxy": {
+      "name": "zog-proxy",
+      "root": "proxy",
+      "source": "git@github.com:zog-watch/zog.git"
+    },
+    "zog-docs": {
+      "name": "zog-docs",
+      "root": "docs",
+      "source": "git@github.com:zog-watch/zog.git"
+    }
+  }
+}

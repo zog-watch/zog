@@ -1,0 +1,123 @@
+---
+title: Browser Extension
+description: The Zog browser extension enhances streaming quality and makes it possible to scrape more sources.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+The Zog browser extension enhances streaming quality and makes it possible to scrape more sources.
+
+Check out this [explanation](https://rentry.co/htagcrv4) about what the extension does.
+
+## Chrome Webstore
+
+The extension is not currently published on the Chrome Webstore. Build it from source or install the unpacked build from [GitHub Releases](https://github.com/zog-watch/zog/releases).
+
+:::caution
+## Firefox AMO
+The extension is not listed on the Firefox Add-ons (AMO), so you'll need to install the `.xpi` manually.
+
+Sorry, some loser keeps reporting the extension and getting it taken down. ˙◠˙
+:::
+
+# Manual Installation
+
+- [Chromium-based Installation](#chromium-based-installation)
+- [Firefox-based Installation](#firefox-based-installation)
+
+Select one of the following methods to install the extension. Ensure that you download the files compatible with your browser.
+
+## Chromium-based Installation
+
+These installation steps are for any chromium-based browsers such as Microsoft Edge, Google Chrome, Vivaldi, Brave, Arc or Opera.
+
+### Loading a ZIP file
+
+<Steps>
+1. Download and **unpack** the ZIP file from [here](https://github.com/zog-watch/zog/releases).
+
+2. Go to your extensions page by typing the corresponding URL into your browser
+   from the table below.
+
+   | Browser | URL |
+   |---------|-----|
+   | Microsoft Edge | `edge://extensions` |
+   | Google Chrome | `chrome://extensions` |
+   | Vivaldi | `vivaldi://extensions` |
+   | Opera | `opera://extensions` |
+
+3. Enable `Developer mode` toggle.
+
+4. Click the `Load unpacked` button.
+
+5. Select the **extracted** folder from the ZIP file from **Step 1**.
+</Steps>
+
+## Firefox-based Installation
+
+This extension requires disabling `xpinstall.signatures.required` in `about:config` in the following supported browsers:
+
+### Supported Browsers
+- **Librewolf** (recommended)
+- **Iceraven** (Android)
+- **Floorp**
+- **Firefox Nightly** (May have some issues)
+- **Firefox Developer Edition**
+- **Zen Browser**
+
+### Installation Steps
+
+<Steps>
+1. Open your supported Firefox browser and type `about:config` into the address bar.
+
+2. Click the `Accept the Risk and Continue` button.
+
+3. Search for `xpinstall.signatures.required` and set it to `false` by clicking
+   the toggle.
+
+4. Download the XPI file from
+   [here](https://github.com/zog-watch/zog/tree/main/extension/releases).
+   It should automatically start the installation process.
+
+5. When prompted, choose `Continue to Installation` and then `Add`.
+</Steps>
+
+## Workarounds for Unsupported Browsers
+
+This extension works with unsupported browsers, but requires additional steps. Please see below.
+
+### Regular Firefox Tutorial
+
+#### How to use CRX Installer with regular Firefox
+Complete guide for disabling signature verification in standard Firefox
+
+In the regular version of Firefox, setting `xpinstall.signatures.required` to `false` does not work correctly. This document explains how to disable this restriction.
+
+1. **Identify the path of omni.ja**
+
+   omni.ja is located in the Firefox installation directory.
+
+   The typical path is as follows:
+   ```
+   C:/Program Files/Mozilla Firefox/omni.ja
+   C:/Program Files (x86)/Mozilla Firefox/omni.ja
+   /Applications/Firefox.app/omni.ja
+   /usr/lib/firefox/omni.ja
+   /usr/lib64/firefox/omni.ja
+   /opt/firefox/omni.ja
+   ```
+
+   You can also check the location of the installation directory from the `about:support` page.
+
+2. **Patch omni.ja**
+
+   Download [omniPatcher.py](https://github.com/zog-watch/blob/main/public/omniPatcher.py) and run it as follows:
+   ```
+   python omniPatcher.py /path/to/omni.ja
+   ```
+
+3. **Remove startup cache**
+
+   To apply the changes, open `about:support` and delete the startup cache from the button at the top right.
+
+   This allows you to disable signature verification in the regular version of Firefox based on the value of `xpinstall.signatures.required`.

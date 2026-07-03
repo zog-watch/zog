@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zog Notifications</title>
+   
+    <description>Site updates and important notifications for Zog users</description>
+    <language>en</language>
+    <lastBuildDate>Mon, 08 Jun 2026 00:00:00 MST</lastBuildDate>
+    
+    <item>
+      <guid>notification-062</guid>
+      <title>We've rebranded — welcome to zog.watch!</title>
+      <description>Welcome to Zog. Our domain is live at https://zog.watch
+
+        Update your bookmarks!
+
+Join our Discord server for support, updates, and to be part of the community.
+      </description>
+      <link>https://discord.gg/wmbWfk4SGy</link>
+      <pubDate>Mon, 08 Jun 2026 00:00:00 MST</pubDate>
+      <category>announcement</category>
+    </item>
+
+  </channel>
+</rss>

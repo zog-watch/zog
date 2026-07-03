@@ -1,0 +1,24 @@
+---
+title: Configure backend
+description: Configure your Zog client to use a custom backend server.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+If you would like to use an alternative backend server (the server responsible for saving user data across devices) then you can specify your own URL **without needing to host your own Zog frontend!**
+
+:::danger
+Changing your backend server will log you out of your account - make sure you
+have a copy of your 12-word passphrase saved in case you need to go back!
+:::
+
+<Steps>
+1. On Zog, click the menu icon at the top right and then `Settings`.
+
+2. Scroll down the page to the `Connections` section.
+
+3. Enable the `Custom server` toggle and enter your backend URL in the input box
+   that appears.
+
+4. Click `Save` at the bottom right corner of your screen.
+</Steps>

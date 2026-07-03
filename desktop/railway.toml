@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+
+[build.nixpacksPlan]
+providers = ["node"]
+
+[deploy]
+startCommand = ""
+# This service is not deployed; it is packaged into a desktop app.
+# Run: pnpm --filter zog-desktop build

@@ -1,0 +1,93 @@
+---
+title: Deploy
+description: Deploy the Zog backend server.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+The only officially recognized hosting method is through Docker (or similar container runtimes). It can be scaled horizontally to all your heart's content and is the safest way to host the backend.
+
+For configuration, check out the [configuration reference](/backend/configuration).
+
+## Method 1 - Docker Deployment
+
+This method provides a straightforward setup with minimal configuration. For more extensive customization, see the [Configuration Reference](/backend/configuration).
+
+**Prerequisites**
+
+- **Docker:** If you don't have Docker installed, download it from the official website: [Docker installation](https://www.docker.com/get-started)
+
+**Setup**
+
+<Steps>
+1. **Create `docker-compose.yml`:**
+
+   ```yaml
+   services:
+     postgres:
+       image: postgres
+       environment:
+         POSTGRES_USER: zog_user
+         POSTGRES_DB: zog
+         POSTGRES_PASSWORD: YourPasswordHere
+       ports:
+         - "5432:5432"
+       networks:
+         - zog-network
+     zog:
+       image: ghcr.io/zog-watch/backend:latest
+       environment:
+         DATABASE_URL: postgresql://zog_user:YourPasswordHere@postgres:5432/zog
+         CRYPTO_SECRET: 32CharacterLongStringHere
+         META_NAME: unofficial-backend
+       ports:
+         - "80:80"
+       depends_on:
+         - postgres
+       networks:
+         - zog-network
+   networks:
+     zog-network:
+       driver: bridge
+   ```
+
+   **Important:**
+   * Replace `YourPasswordHere` with your secure database password.
+   * Generate a strong session secret and replace `32CharacterLongStringHere`.
+
+2. **Start the Backend:** Open a terminal in the directory containing `docker-compose.yml` and execute:
+
+   ```bash
+   docker-compose up -d
+   ```
+</Steps>
+
+### Accessing Your Backend
+
+Your backend should be accessible on `(YourPrivateIP):80`. To share it outside your local network, you'll need to configure port forwarding or cloudflared tunnel.
+
+## Method 2 - Railway (Easy)
+
+Railway offers a 30-day free trial that includes a one-time $5 credit. After the trial, you receive $1 in usage credits for free each month.
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/zogbackend?referralCode=zvXFZF)
+
+<Steps>
+1. Login to your [Railway](https://railway.app) account if you have one,
+   otherwise create one [here](https://railway.app/login).
+   - If you are signing up, then verify your account by clicking the link in the email Railway sends you. Ensure you setup your server location [here](https://railway.com/workspace) to the closest one possible.
+
+2. Click the [`Deploy on Railway`](https://railway.com/deploy/zogbackend?referralCode=zvXFZF) button above.
+
+3. Click on configure for the one that says Backend.
+
+4. Fill in the required variable `META_NAME`; the rest are optional and can be set later on.
+
+5. The `Deploy` button at the bottom of the template should be active, click on it.
+
+6. Once the `Backend` service has deployed, copy the URL from the `Deployments`
+   page. (Might take a second for it to be available after the service has deployed)
+
+7. Congratulations! You have deployed the backend, you can now [set up the
+   client](/self-hosting/use-backend).
+</Steps>

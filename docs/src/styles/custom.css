@@ -1,0 +1,14 @@
+:root {
+  --sl-color-accent-low: #2a2b4e;
+  --sl-color-accent: #8288FE;
+  --sl-color-accent-high: #b7adde;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #d0cedd;
+  --sl-color-gray-2: #a6a4ae;
+  --sl-color-gray-3: #8c899a;
+  --sl-color-gray-4: #34334c;
+  --sl-color-gray-5: #1a1b29;
+  --sl-color-gray-6: #12131f;
+  --sl-color-black: #0c0b13;
+  --sl-font: var(--font-inter, 'Inter', system-ui, sans-serif);
+}

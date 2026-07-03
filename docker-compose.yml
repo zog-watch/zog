@@ -1,0 +1,105 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zog-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zog
+      POSTGRES_PASSWORD: zog
+      POSTGRES_DB: zog
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zog -d zog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: zog-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DB_PROVIDER: postgres
+      DATABASE_URL: postgresql://zog:zog@postgres:5432/zog?schema=public
+      CRYPTO_SECRET: ${CRYPTO_SECRET:-change-me-in-production}
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+      TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID:-}
+      TRAKT_SECRET_ID: ${TRAKT_SECRET_ID:-}
+      META_NAME: Zog Backend
+      META_DESCRIPTION: Zog API backend
+    ports:
+      - "3001:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  proxy:
+    build:
+      context: .
+      dockerfile: proxy/Dockerfile
+    container_name: zog-proxy
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:-}
+      TURNSTILE_SECRET: ${TURNSTILE_SECRET:-}
+      ENABLE_CACHE: ${ENABLE_CACHE:-false}
+      DISABLE_M3U8: ${DISABLE_M3U8:-false}
+    ports:
+      - "3002:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_APP_DOMAIN: ${VITE_APP_DOMAIN:-https://zog.watch}
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:3001}
+        VITE_CORS_PROXY_URL: ${VITE_CORS_PROXY_URL:-http://localhost:3002}
+        VITE_M3U8_PROXY_URL: ${VITE_M3U8_PROXY_URL:-http://localhost:3002}
+        VITE_TMDB_READ_API_KEY: ${VITE_TMDB_READ_API_KEY:-}
+        VITE_DMCA_EMAIL: ${VITE_DMCA_EMAIL:-dmca@zog.watch}
+        VITE_NORMAL_ROUTER: ${VITE_NORMAL_ROUTER:-true}
+        VITE_PWA_ENABLED: ${VITE_PWA_ENABLED:-true}
+    container_name: zog-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - proxy
+
+  docs:
+    build:
+      context: .
+      dockerfile: docs/Dockerfile
+      args:
+        SITE_URL: ${SITE_URL:-https://zog.watch}
+        BASE_PATH: ${BASE_PATH:-/docs}
+    container_name: zog-docs
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

@@ -1,0 +1,51 @@
+---
+title: Zog
+description: A cutesy app for watching your favorite movies and shows. Totally free and open source, forever!
+template: splash
+hero:
+  title: Zog
+  tagline: A cutesy app for watching your favorite movies and shows. Totally free and open source, forever!
+  image:
+    file: ../../assets/transparent-logo.png
+  actions:
+    - text: Get Started
+      link: /self-hosting/hosting-intro/
+      icon: right-arrow
+      variant: primary
+    - text: Open on GitHub
+      link: https://github.com/zog-watch/zog
+      icon: external
+      variant: secondary
+---
+
+import { CardGrid, Card } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="No Ads" icon="approve-check-circle">
+    Zog will never show ads, enjoy watching without interruptions.
+  </Card>
+  <Card title="Custom Player" icon="laptop">
+    Enjoy a fully custom video player including streaming integration, subtitle customization and easy TV season navigation.
+  </Card>
+  <Card title="Saves Your Progress" icon="pencil">
+    Will remember your progress in movies and TV shows, so you can easily continue where you left off.
+  </Card>
+  <Card title="Bookmarking" icon="star">
+    Allows you to bookmark your favorite movies and TV shows, so you can easily find them again.
+  </Card>
+  <Card title="Syncing Across Devices" icon="seti:svg">
+    Enjoy uninterrupted streaming as your progress, proxies, and bookmarks sync effortlessly across all your devices.
+  </Card>
+  <Card title="Modular by Design" icon="puzzle">
+    Mix and match different parts of the Zog service, host your backend or use ours, it'll work either way.
+  </Card>
+  <Card title="Multiple Languages" icon="translate">
+    Supports over 25 languages, including English, German, French, Spanish, Italian, Czech, Hindi, Arabic, Hebrew and more.
+  </Card>
+  <Card title="Customizable" icon="setting">
+    Supports various themes, subtitle colors and subtitle sizes so you can make it look however you want.
+  </Card>
+  <Card title="Progressive Web App Support" icon="phone">
+    Supports PWA, so you can install it on your phone and use it just like a native app.
+  </Card>
+</CardGrid>
