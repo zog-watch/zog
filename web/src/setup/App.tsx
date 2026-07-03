@@ -11,6 +11,7 @@ import {
 
 import { convertLegacyUrl, isLegacyUrl } from "@/backend/metadata/getmeta";
 import { generateQuickSearchMediaUrl } from "@/backend/metadata/tmdb";
+import { PlausiblePageview } from "@/components/PlausiblePageview";
 import { DetailsModal } from "@/components/overlays/detailsModal";
 import { GamepadControlsModal } from "@/components/overlays/GamepadControlsModal";
 import { KeyboardCommandsEditModal } from "@/components/overlays/KeyboardCommandsEditModal";
@@ -178,6 +179,7 @@ function App() {
 
   return (
     <Layout>
+      <PlausiblePageview />
       <SimklAuthHandler />
       <LanguageProvider />
       <NotificationModal id="notifications" />

@@ -6,4 +6,16 @@ import { Font } from 'astro:assets';
 ---
 
 <Font cssVariable="--font-inter" preload />
+<script
+  defer
+  data-domain="zog.watch"
+  src="https://plausible-production-70a1.up.railway.app/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
+></script>
+<script is:inline>
+  window.plausible =
+    window.plausible ||
+    function () {
+      (window.plausible.q = window.plausible.q || []).push(arguments);
+    };
+</script>
 <StarlightHead {...Astro.props}><slot /></StarlightHead>

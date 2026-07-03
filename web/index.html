@@ -229,6 +229,19 @@
 
     <script src="/config.js"></script>
 
+    <script
+      defer
+      data-domain="zog.watch"
+      src="https://plausible-production-70a1.up.railway.app/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"
+    ></script>
+    <script>
+      window.plausible =
+        window.plausible ||
+        function () {
+          (window.plausible.q = window.plausible.q || []).push(arguments);
+        };
+    </script>
+
     {{#if env.VITE_TRACK_SCRIPT }} {{{ env.VITE_TRACK_SCRIPT }}} {{/if}}
 
     <!-- prevent darkreader extension from messing with our already dark site -->

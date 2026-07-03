@@ -160,6 +160,8 @@ export function useScrape() {
   );
   const preferredEmbedOrder = usePreferencesStore((s) => s.embedOrder);
   const enableEmbedOrder = usePreferencesStore((s) => s.enableEmbedOrder);
+  const debridToken = usePreferencesStore((s) => s.debridToken);
+  const manualSourceSelection = usePreferencesStore((s) => s.manualSourceSelection);
 
   const startScraping = useCallback(
     async (media: ScrapeMedia, startFromSourceId?: string) => {
@@ -189,6 +191,17 @@ export function useScrape() {
 
       // Start with all available sources (DO NOT filter failed ones yet, so we can find startFromSourceId)
       let baseSourceOrder = allSources.map((source) => source.id);
+
+      const debridAvailable = baseSourceOrder.includes("debrid");
+      if (
+        debridToken &&
+        debridAvailable &&
+        !enableSourceOrder &&
+        !startFromSourceId &&
+        !manualSourceSelection
+      ) {
+        baseSourceOrder = ["debrid"];
+      }
 
       // Apply custom source ordering if enabled
       if (enableSourceOrder && (preferredSourceOrder || []).length > 0) {
@@ -279,6 +292,8 @@ export function useScrape() {
       enableLastSuccessfulSource,
       preferredEmbedOrder,
       enableEmbedOrder,
+      debridToken,
+      manualSourceSelection,
     ],
   );
 

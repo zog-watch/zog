@@ -61,6 +61,20 @@ function normalizeQuality(resolution?: string): '4k' | 1080 | 720 | 480 | 360 | 
   return 'unknown';
 }
 
+function isBrowserCompatibleStream(stream: DebridParsedStream): boolean {
+  const codec = stream.codec?.toLowerCase();
+  const container = stream.container?.toLowerCase();
+  const haystack = `${stream.title} ${stream.url}`.toLowerCase();
+
+  if (container === 'mkv' || haystack.includes('.mkv')) return false;
+  if (codec === 'h265' || codec === 'hevc' || codec === 'x265') return false;
+  if (!codec && (haystack.includes('hevc') || haystack.includes('x265') || haystack.includes('h265'))) {
+    return false;
+  }
+
+  return true;
+}
+
 // Helper to score streams for browser compatibility (higher is better)
 function scoreStream(stream: DebridParsedStream): number {
   let score = 0;
@@ -102,14 +116,10 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
 
   const debridProvider: debridProviders = getDebridService();
 
-  const [torrentioResult, cometStreams] = await Promise.all([
-    getAddonStreams(`https://torrentio.strem.fun/${debridProvider}=${apiKey}`, ctx),
-    withTimeout(
-      getCometStreams(apiKey, debridProvider, ctx).catch(() => [] as DebridParsedStream[]),
-      COMET_TIMEOUT_MS,
-      [] as DebridParsedStream[],
-    ),
-  ]);
+  const torrentioResult = await getAddonStreams(
+    `https://torrentio.strem.fun/${debridProvider}=${apiKey}`,
+    ctx,
+  );
 
   ctx.progress(33);
 
@@ -121,8 +131,17 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
     ctx,
   );
 
+  let cometStreams: DebridParsedStream[] = [];
+  if (torrentioStreams.length < 5) {
+    cometStreams = await withTimeout(
+      getCometStreams(apiKey, debridProvider, ctx).catch(() => [] as DebridParsedStream[]),
+      COMET_TIMEOUT_MS,
+      [] as DebridParsedStream[],
+    );
+  }
+
   const allStreams = [...torrentioStreams, ...cometStreams].filter(
-    (stream) => normalizeQuality(stream.resolution) !== '4k',
+    (stream) => normalizeQuality(stream.resolution) !== '4k' && isBrowserCompatibleStream(stream),
   );
 
   if (allStreams.length === 0) {
@@ -157,7 +176,7 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   }
 
   if (Object.keys(qualities).length === 0) {
-    throw new NotFoundError('No streams found below 4K');
+    throw new NotFoundError('No browser-compatible streams found');
   }
 
   ctx.progress(100);
