@@ -437,11 +437,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       return;
     }
 
-    if (
-      isUrlAlreadyProxied(ops.url) ||
-      ops.url.startsWith("blob:") ||
-      ops.url.startsWith("data:")
-    ) {
+    if (ops.url.startsWith("blob:") || ops.url.startsWith("data:")) {
       setSource();
       return;
     }
