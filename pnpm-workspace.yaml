@@ -2,7 +2,7 @@ packages:
   - 'web'
   - 'backend'
   - 'proxy'
-  - 'cache'
+  - 'zog-cache'
   - 'providers'
   - 'extension'
   - 'desktop'

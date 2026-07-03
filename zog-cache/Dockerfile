@@ -14,8 +14,8 @@ RUN corepack enable
 # ------------------------------------------------------------------------------
 FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
-COPY cache/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
-COPY cache/package.json ./cache/package.json
+COPY zog-cache/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
+COPY zog-cache/package.json ./zog-cache/package.json
 RUN apk add --no-cache python3 make g++ \
     && pnpm install --frozen-lockfile --ignore-scripts
 
@@ -23,7 +23,7 @@ RUN apk add --no-cache python3 make g++ \
 # Build the cache service
 # ------------------------------------------------------------------------------
 FROM deps AS build
-COPY cache ./cache
+COPY zog-cache ./zog-cache
 RUN pnpm --filter zog-cache build
 
 # ------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ FROM node:20-alpine AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
-COPY --from=build /app/cache/.output ./.output
+COPY --from=build /app/zog-cache/.output ./.output
 
 EXPOSE 3000
 CMD ["node", ".output/server/index.mjs"]
