@@ -7,6 +7,7 @@ export default defineNitroConfig({
   runtimeConfig: {
     version: pkg.version,
     debirdToken: process.env.DEBRID_TOKEN ?? "",
+    debirdService: process.env.DEBRID_SERVICE ?? "torbox",
     s3: {
       endpoint: process.env.AWS_ENDPOINT_URL ?? "",
       region: process.env.AWS_DEFAULT_REGION ?? "auto",

@@ -23,6 +23,10 @@ export type LoadableSource = {
   url: string;
   headers?: Stream["headers"];
   preferredHeaders?: Stream["preferredHeaders"];
+  // debrid hints — when present, the cache service will use TorBox API
+  // directly to download a non-IP-locked file instead of the given URL
+  debridInfoHash?: string;
+  debridFileIdx?: number;
 };
 
 export type SourceSliceSource =

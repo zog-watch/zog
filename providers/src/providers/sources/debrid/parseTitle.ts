@@ -39,6 +39,13 @@ export function parseDebridStream(stream: StreamInput): DebridParsedStream {
     dubbed: parsed.dubbed,
     title,
     url: stream.url,
+    infoHash: typeof stream.infoHash === 'string' ? stream.infoHash : undefined,
+    fileIdx:
+      typeof stream.fileIdx === 'number'
+        ? stream.fileIdx
+        : typeof stream.fileIdx === 'string'
+          ? Number.parseInt(stream.fileIdx, 10)
+          : undefined,
   };
 }
 

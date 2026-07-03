@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import {
   getEntry,
   listAll,
@@ -15,6 +13,11 @@ import {
   headObject,
   putObject,
 } from "./s3";
+import {
+  ensureTorrentIdByHash,
+  getDownloadUrl,
+  getTorrentFileList,
+} from "./torbox";
 
 const DOWNLOAD_TIMEOUT_MS = 30 * 60 * 1000;
 const MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024 * 1024; // 50GB hard cap per file
@@ -35,7 +38,7 @@ export interface FetchResult {
   url: string;
   contentType: string;
   size: number;
-  cached: true;
+  cached: boolean;
 }
 
 export interface PendingResult {
@@ -48,10 +51,8 @@ export async function getCachedUrl(cacheKey: string): Promise<FetchResult | null
   const entry = getEntry(key);
   if (!entry || entry.status !== "ready") return null;
 
-  // touch for LRU
   touchEntry(key, Date.now());
 
-  // verify still in bucket
   const head = await headObject(entry.object_key).catch(() => null);
   if (!head) {
     upsertEntry({ ...entry, status: "failed", error: "missing in bucket" });
@@ -68,12 +69,37 @@ export async function getCachedUrl(cacheKey: string): Promise<FetchResult | null
   };
 }
 
-export async function downloadAndCache(
-  cacheKey: string,
-  sourceUrl: string,
-  extraHeaders: Record<string, string> = {},
-): Promise<FetchResult> {
-  const key = sanitizeKey(cacheKey);
+export interface CacheRequest {
+  cacheKey: string;
+  fallbackUrl?: string;
+  headers?: Record<string, string>;
+  // self-hosted: when present, use TorBox API instead of the URL
+  infoHash?: string;
+  fileIdx?: number;
+}
+
+async function resolveSourceUrl(req: CacheRequest): Promise<string> {
+  if (req.infoHash) {
+    const torrentId = await ensureTorrentIdByHash(req.infoHash);
+    let fileId = req.fileIdx;
+    if (fileId === undefined) {
+      const files = await getTorrentFileList(torrentId);
+      const video = files.find(
+        (f) => f.mimetype?.startsWith("video/") ?? /\.(mp4|mkv|webm|mov)$/i.test(f.name),
+      );
+      if (!video) throw new Error("no video file in torrent");
+      fileId = video.id;
+    }
+    return getDownloadUrl(torrentId, fileId);
+  }
+  if (!req.fallbackUrl) {
+    throw new Error("no infoHash and no fallbackUrl");
+  }
+  return req.fallbackUrl;
+}
+
+export async function downloadAndCache(req: CacheRequest): Promise<FetchResult> {
+  const key = sanitizeKey(req.cacheKey);
   const objectKey = objectKeyFor(key);
 
   const existing = await getCachedUrl(key);
@@ -91,17 +117,39 @@ export async function downloadAndCache(
     error: null,
   });
 
+  let sourceUrl: string;
+  try {
+    sourceUrl = await resolveSourceUrl(req);
+  } catch (err: any) {
+    const msg = err?.message ?? String(err);
+    upsertEntry({
+      key,
+      object_key: objectKey,
+      content_type: "application/octet-stream",
+      size_bytes: 0,
+      created_at: now,
+      last_accessed_at: now,
+      status: "failed",
+      error: msg,
+    });
+    throw err;
+  }
+
   const headers: Record<string, string> = {
     "User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
-    ...extraHeaders,
+    ...(req.headers ?? {}),
   };
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
 
   try {
-    const res = await fetch(sourceUrl, { headers, signal: controller.signal, redirect: "follow" });
+    const res = await fetch(sourceUrl, {
+      headers,
+      signal: controller.signal,
+      redirect: "follow",
+    });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new Error(`Upstream returned ${res.status}: ${text.slice(0, 200)}`);
@@ -132,7 +180,6 @@ export async function downloadAndCache(
       error: null,
     });
 
-    // Enforce size cap
     await enforceSizeCap();
 
     const url = await getSignedDownloadUrl(objectKey);

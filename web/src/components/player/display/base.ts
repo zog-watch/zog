@@ -443,13 +443,27 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
     }
 
     const cacheKey = buildCacheKey(undefined, ops.url, ops.type);
+    const debrid =
+      ops.debridInfoHash || ops.debridFileIdx !== undefined
+        ? { infoHash: ops.debridInfoHash, fileIdx: ops.debridFileIdx }
+        : undefined;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
     try {
-      const cached = await requestCachedStream(cacheKey, ops.url, ops.headers ?? {}, undefined);
+      const cached = await requestCachedStream(
+        cacheKey,
+        ops.url,
+        ops.headers ?? {},
+        controller.signal,
+        debrid,
+      );
       if (cached) {
         source = { ...ops, url: cached.url };
       }
     } catch (err) {
       console.warn("[cache] failed, falling back to direct URL", err);
+    } finally {
+      clearTimeout(timeout);
     }
     setSource();
   }

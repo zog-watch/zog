@@ -31,13 +31,21 @@ export async function requestCachedStream(
   sourceUrl: string,
   headers: Record<string, string>,
   signal?: AbortSignal,
+  debrid?: { infoHash?: string; fileIdx?: number },
 ): Promise<CachedStream | null> {
   const base = conf().CACHE_URL;
   if (!base) return null;
 
   const url = new URL("/stream", base);
   url.searchParams.set("key", cacheKey);
-  url.searchParams.set("url", sourceUrl);
+  if (debrid?.infoHash) {
+    url.searchParams.set("infoHash", debrid.infoHash);
+    if (debrid.fileIdx !== undefined) {
+      url.searchParams.set("fileIdx", String(debrid.fileIdx));
+    }
+  } else {
+    url.searchParams.set("url", sourceUrl);
+  }
   for (const [k, v] of Object.entries(headers)) {
     url.searchParams.set(`h_${k}`, v);
   }

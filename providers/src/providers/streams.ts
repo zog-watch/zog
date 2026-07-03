@@ -4,6 +4,10 @@ import { Caption } from '@/providers/captions';
 export type StreamFile = {
   type: 'mp4';
   url: string;
+  // optional debrid hints for cache/services that need to re-unrestrict the
+  // link on their side
+  debridInfoHash?: string;
+  debridFileIdx?: number;
 };
 
 export type FileAudioVariant = {
@@ -28,6 +32,10 @@ type StreamCommon = {
   headers?: Record<string, string>; // these headers HAVE to be set to watch the stream
   preferredHeaders?: Record<string, string>; // these headers are optional, would improve the stream
   skipValidation?: boolean; // skip stream validation if true
+  // debrid provider hints (TorBox / Real-Debrid) so a downstream cache can
+  // re-unrestrict a fresh, non-IP-locked download URL
+  debridInfoHash?: string;
+  debridFileIdx?: number;
 };
 
 export type FileBasedStream = StreamCommon & {

@@ -4,12 +4,21 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const key = String(query.key ?? "").trim();
   const url = String(query.url ?? "").trim();
+  const infoHash = String(query.infoHash ?? "").trim();
+  const fileIdxRaw = query.fileIdx;
+  const fileIdx =
+    fileIdxRaw === undefined || fileIdxRaw === ""
+      ? undefined
+      : Number.parseInt(String(fileIdxRaw), 10);
 
   if (!key) {
     throw createError({ statusCode: 400, statusMessage: "Missing key" });
   }
-  if (!url) {
-    throw createError({ statusCode: 400, statusMessage: "Missing url" });
+  if (!infoHash && !url) {
+    throw createError({ statusCode: 400, statusMessage: "Missing url or infoHash" });
+  }
+  if (fileIdx !== undefined && Number.isNaN(fileIdx)) {
+    throw createError({ statusCode: 400, statusMessage: "Invalid fileIdx" });
   }
 
   const headers: Record<string, string> = {};
@@ -19,14 +28,18 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // cache hit
   const cached = await getCachedUrl(key).catch((err) => {
     console.error("Cache lookup error:", err);
     return null;
   });
   if (cached) return cached;
 
-  // download + cache
-  const result = await downloadAndCache(key, url, headers);
+  const result = await downloadAndCache({
+    cacheKey: key,
+    fallbackUrl: url || undefined,
+    infoHash: infoHash || undefined,
+    fileIdx,
+    headers,
+  });
   return result;
 });

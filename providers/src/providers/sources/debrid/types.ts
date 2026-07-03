@@ -44,4 +44,6 @@ export type DebridParsedStream = {
   dubbed?: boolean;
   title: string;
   url: string;
+  infoHash?: string;
+  fileIdx?: number;
 };

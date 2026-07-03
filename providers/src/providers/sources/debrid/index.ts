@@ -161,6 +161,8 @@ function buildQualitiesFromStreams(streams: DebridParsedStream[]): QualityMap {
       qualities[quality as keyof typeof qualities] = {
         type: 'mp4',
         url: best.url,
+        debridInfoHash: best.infoHash,
+        debridFileIdx: best.fileIdx,
       };
     }
   }
