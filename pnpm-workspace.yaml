@@ -2,6 +2,7 @@ packages:
   - 'web'
   - 'backend'
   - 'proxy'
+  - 'cache'
   - 'providers'
   - 'extension'
   - 'desktop'

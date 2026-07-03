@@ -1,0 +1,10 @@
+packages:
+  - 'cache'
+  - 'web'
+  - 'backend'
+  - 'proxy'
+  - 'providers'
+  - 'extension'
+  - 'desktop'
+  - 'docs'
+  - 'userscript'
