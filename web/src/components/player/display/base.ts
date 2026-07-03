@@ -442,7 +442,13 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       return;
     }
 
-    const cacheKey = buildCacheKey(undefined, ops.url, ops.type);
+    const cacheKey = buildCacheKey(
+      undefined,
+      ops.url,
+      ops.type,
+      ops.debridInfoHash,
+      ops.debridFileIdx,
+    );
     const debrid =
       ops.debridInfoHash || ops.debridFileIdx !== undefined
         ? { infoHash: ops.debridInfoHash, fileIdx: ops.debridFileIdx }

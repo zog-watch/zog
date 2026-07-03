@@ -20,7 +20,12 @@ export function buildCacheKey(
   imdbId: string | undefined,
   streamUrl: string,
   extra?: string,
+  debridInfoHash?: string,
+  debridFileIdx?: number,
 ): string {
+  if (debridInfoHash) {
+    return `${debridInfoHash.slice(0, 12)}-${debridFileIdx ?? 0}`;
+  }
   const hash = djb2(`${streamUrl}|${extra ?? ""}`);
   const safe = (imdbId ?? "unknown").replace(/[^a-zA-Z0-9._-]/g, "_");
   return `${safe}-${hash}`;

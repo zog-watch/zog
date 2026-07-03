@@ -3,6 +3,10 @@ import { AnimekaiScraper } from './embeds/animekai';
 import { animekaiScraper } from './sources/animekai';
 import { FedAPIScraper } from './sources/fedapi';
 import { FedAPIDBScraper } from './sources/fedapidb';
+import { icefyScraper } from './sources/icefy';
+import { youPlexSources } from './sources/youplex';
+import { FerryScraper } from './sources/ferry';
+import { CineScraper } from './sources/cineminer';
 import { doodScraper } from '@/providers/embeds/dood';
 import { filemoonScraper } from '@/providers/embeds/filemoon';
 import { mixdropScraper } from '@/providers/embeds/mixdrop';
@@ -145,6 +149,10 @@ export function gatherAllSources(): Array<Sourcerer> {
     pelisplushdScraper,
     primewireScraper,
     movies4fScraper,
+    icefyScraper,
+    ...youPlexSources,
+    FerryScraper,
+    CineScraper,
     debridScraper,
     cinehdplusScraper,
     fullhdfilmizleScraper,
