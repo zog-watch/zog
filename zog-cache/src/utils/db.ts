@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const DATA_DIR = process.env.CACHE_DATA_DIR ?? "/tmp/zog-cache";
@@ -42,8 +42,7 @@ function persist() {
   const tmp = `${INDEX_PATH}.tmp`;
   writeFileSync(tmp, JSON.stringify(cache, null, 2));
   // rename is atomic on POSIX
-  const fs = require("node:fs") as typeof import("node:fs");
-  fs.renameSync(tmp, INDEX_PATH);
+  renameSync(tmp, INDEX_PATH);
 }
 
 // Single in-process mutex to keep the index consistent across concurrent
