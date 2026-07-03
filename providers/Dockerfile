@@ -12,7 +12,7 @@ COPY package.json pnpm-lock.yaml* ./
 COPY providers/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
 COPY providers/package.json ./providers/package.json
 COPY web/package.json ./web/package.json
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 COPY providers ./providers
 RUN pnpm --filter @zog/providers build

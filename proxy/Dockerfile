@@ -16,7 +16,7 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
 COPY proxy/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
 COPY proxy/package.json ./proxy/package.json
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ------------------------------------------------------------------------------
 # Build the proxy

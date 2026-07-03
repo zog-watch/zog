@@ -13,7 +13,7 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml* ./
 COPY docs/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
 COPY docs/package.json ./docs/package.json
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source
 COPY docs ./docs

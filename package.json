@@ -21,5 +21,9 @@
     "build:desktop": "pnpm --filter zog-desktop build",
     "lint": "pnpm -r lint",
     "prepare": "pnpm --filter @zog/providers build"
+  },
+  "devDependencies": {
+    "railway": "^3.4.1",
+    "tsx": "^4.22.5"
   }
 }

@@ -16,7 +16,7 @@ COPY package.json pnpm-lock.yaml* ./
 COPY web/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
 COPY web/package.json ./web/package.json
 COPY providers/package.json ./providers/package.json
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ------------------------------------------------------------------------------
 # Build the web app

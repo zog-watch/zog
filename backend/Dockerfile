@@ -19,7 +19,7 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
 COPY backend/pnpm-workspace.docker.yaml ./pnpm-workspace.yaml
 COPY backend/package.json ./backend/package.json
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ------------------------------------------------------------------------------
 # Build the app
