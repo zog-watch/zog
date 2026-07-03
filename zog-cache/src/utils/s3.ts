@@ -19,7 +19,7 @@ export function getS3Client() {
   client = new S3Client({
     region: cfg.region,
     endpoint: cfg.endpoint,
-    forcePathStyle: false,
+    forcePathStyle: true,
     credentials: {
       accessKeyId: cfg.accessKeyId,
       secretAccessKey: cfg.secretAccessKey,
