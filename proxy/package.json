@@ -20,7 +20,8 @@
   "dependencies": {
     "h3": "^1.15.1",
     "jose": "^5.10.0",
-    "nitropack": "^2.11.9"
+    "nitropack": "^2.11.9",
+    "undici": "^7.10.0"
   },
   "devDependencies": {
     "@rollup/wasm-node": "^4.40.0",

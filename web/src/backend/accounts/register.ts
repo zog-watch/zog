@@ -47,7 +47,7 @@ export async function registerAccount(
   return ofetch<RegisterResponse>("/auth/register/complete", {
     method: "POST",
     body: {
-      namespace: "movie-web",
+      namespace: "zog",
       ...data,
     },
     baseURL: url,

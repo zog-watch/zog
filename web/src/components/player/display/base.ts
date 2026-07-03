@@ -112,6 +112,11 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
   const AUDIO_INIT_MAX_ATTEMPTS = 6;
   let lastValidDuration = 0; // Store the last valid duration to prevent reset during source switches
   let lastValidTime = 0; // Store the last valid time to prevent reset during source switches
+
+  function minBufferSeconds() {
+    // Progressive MP4 (debrid/direct files) needs less buffer before playback feels ready
+    return source?.type === "mp4" ? 1 : 5;
+  }
   let shouldAutoplayAfterLoad = false; // Flag to track if we should autoplay after loading completes
   let qualityChangeTimeout: NodeJS.Timeout | null = null; // Timeout for debouncing rapid quality changes
 
@@ -429,7 +434,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
             currentTime <= buffered.end(i)
           ) {
             const bufferedAhead = buffered.end(i) - currentTime;
-            return bufferedAhead >= 5; // At least 5 seconds buffered ahead
+            return bufferedAhead >= minBufferSeconds();
           }
         }
         return false;
@@ -519,7 +524,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
               currentTime <= buffered.end(i)
             ) {
               const bufferedAhead = buffered.end(i) - currentTime;
-              return bufferedAhead >= 5; // At least 5 seconds buffered ahead
+              return bufferedAhead >= minBufferSeconds();
             }
           }
           return false;

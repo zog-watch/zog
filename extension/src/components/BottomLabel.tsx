@@ -9,10 +9,6 @@ export function BottomLabel() {
       {version}
       <div className="dot" />
       Zog
-      <div className="dot" />
-      <a href="https://github.com/zog-watch/zog/tree/main/extension" target="_blank" rel="noopener noreferrer" className="github-link">
-        Github ↗
-      </a>
     </h3>
   );
 }

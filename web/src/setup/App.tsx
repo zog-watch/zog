@@ -17,9 +17,7 @@ import { KeyboardCommandsEditModal } from "@/components/overlays/KeyboardCommand
 import { KeyboardCommandsModal } from "@/components/overlays/KeyboardCommandsModal";
 import { NotificationModal } from "@/components/overlays/notificationsModal";
 import { SupportInfoModal } from "@/components/overlays/SupportInfoModal";
-import { TipJarModal } from "@/components/overlays/tipJarModal";
 import { SimklAuthHandler } from "@/components/SimklAuthHandler";
-import { TraktAuthHandler } from "@/components/TraktAuthHandler";
 import { useGlobalKeyboardEvents } from "@/hooks/useGlobalKeyboardEvents";
 import { useOnlineListener } from "@/hooks/usePing";
 import { AboutPage } from "@/pages/About";
@@ -180,11 +178,9 @@ function App() {
 
   return (
     <Layout>
-      <TraktAuthHandler />
       <SimklAuthHandler />
       <LanguageProvider />
       <NotificationModal id="notifications" />
-      <TipJarModal id="tip-jar" />
       <KeyboardCommandsModal id="keyboard-commands" />
       <KeyboardCommandsEditModal id="keyboard-commands-edit" />
       <GamepadControlsModal id="gamepad-controls-edit" />

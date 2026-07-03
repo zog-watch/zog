@@ -5,8 +5,11 @@ import { getCachedSegment } from './m3u8-proxy';
 const isCacheDisabled = () => process.env.ENABLE_CACHE !== 'true';
 
 export default defineEventHandler(async (event) => {
-  // Handle CORS preflight requests
-  if (isPreflightRequest(event)) return handleCors(event, {});
+  if (isPreflightRequest(event)) {
+    event.node.res.statusCode = 204;
+    event.node.res.end();
+    return;
+  }
 
   if (process.env.DISABLE_M3U8 === 'true') {
     return sendError(event, createError({
@@ -43,10 +46,7 @@ export default defineEventHandler(async (event) => {
       if (cachedSegment) {
         setResponseHeaders(event, {
           'Content-Type': cachedSegment.headers['content-type'] || 'video/mp2t',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': '*',
-          'Access-Control-Allow-Methods': '*',
-          'Cache-Control': 'public, max-age=3600' // Allow caching of TS segments
+          'Cache-Control': 'public, max-age=3600',
         });
         
         return cachedSegment.data;
@@ -68,10 +68,7 @@ export default defineEventHandler(async (event) => {
     
     setResponseHeaders(event, {
       'Content-Type': 'video/mp2t',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': '*',
-      'Cache-Control': 'public, max-age=3600' // Allow caching of TS segments
+      'Cache-Control': 'public, max-age=3600',
     });
     
     // Return the binary data directly

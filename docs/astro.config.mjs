@@ -19,10 +19,7 @@ export default defineConfig({
         dark: './src/assets/icon-dark.png',
       },
       favicon: '/favicon.ico',
-      social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/zog-watch/zog' },
-         { icon: 'discord', label: 'Discord', href: `${base === '/' ? '' : base}/links/discord` },
-      ],
+      social: [],
       sidebar: [
         {
           label: 'Global',

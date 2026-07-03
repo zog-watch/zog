@@ -34,7 +34,7 @@ ARG VITE_DMCA_EMAIL=dmca@zog.watch
 ARG VITE_NORMAL_ROUTER=true
 ARG VITE_PWA_ENABLED=true
 ARG VITE_OPENSEARCH_ENABLED=false
-ARG VITE_HAS_ONBOARDING=true
+ARG VITE_HAS_ONBOARDING=false
 ARG VITE_ALLOW_AUTOPLAY=false
 ARG VITE_ONBOARDING_CHROME_EXTENSION_INSTALL_LINK
 ARG VITE_ONBOARDING_PROXY_INSTALL_LINK
@@ -67,6 +67,6 @@ RUN pnpm --filter zog-web build
 FROM nginx:stable-alpine
 COPY --from=build /app/web/dist /usr/share/nginx/html
 COPY web/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
-# cache bust 1783086079
+# cache bust 1783086800

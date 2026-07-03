@@ -3,11 +3,13 @@
 import { bombtheirishScraper } from '@/providers/archive/sources/bombtheirish';
 import { streamtapeScraper } from '@/providers/embeds/streamtape';
 import { warezcdnembedMp4Scraper } from '@/providers/embeds/warezcdn/mp4';
+import { debridScraper } from '@/providers/sources/debrid';
 import { Stream } from '@/providers/streams';
 import { IndividualEmbedRunnerOptions } from '@/runners/individualRunner';
 import { ProviderRunnerOptions } from '@/runners/runner';
 
 const SKIP_VALIDATION_CHECK_IDS = [
+  debridScraper.id,
   warezcdnembedMp4Scraper.id,
   streamtapeScraper.id,
   // deltaScraper.id,

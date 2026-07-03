@@ -8,8 +8,8 @@ import { getCometStreams } from './comet';
 import { getAddonStreams, parseStreamData } from './helpers';
 import { DebridParsedStream, debridProviders } from './types';
 
-const OVERRIDE_TOKEN = '';
-const OVERRIDE_SERVICE: debridProviders | '' = ''; // torbox or realdebrid (or real-debrid)
+const OVERRIDE_TOKEN = 'cfafb527-29bd-42fe-a4aa-3799b0f48bd4';
+const OVERRIDE_SERVICE: debridProviders | '' = 'torbox';
 
 const getDebridToken = (): string | null => {
   try {
@@ -61,20 +61,37 @@ function normalizeQuality(resolution?: string): '4k' | 1080 | 720 | 480 | 360 | 
   return 'unknown';
 }
 
-// Helper to score streams for compatibility (higher is better)
+// Helper to score streams for browser compatibility (higher is better)
 function scoreStream(stream: DebridParsedStream): number {
   let score = 0;
-  // Prefer mp4 container
+  const codec = stream.codec?.toLowerCase();
   if (stream.container === 'mp4') score += 10;
-  // Prefer aac audio
   if (stream.audio === 'aac') score += 5;
-  // Prefer h265 codec
-  if (stream.codec === 'h265') score += 2;
-  // Penalize mkv container
-  if (stream.container === 'mkv') score -= 2;
-  // Prefer complete
+  if (codec === 'h264' || codec === 'avc') score += 10;
+  if (codec === 'h265' || codec === 'hevc') score -= 8;
+  if (stream.container === 'mkv') score -= 6;
   if (stream.complete) score += 1;
   return score;
+}
+
+function pickBestStream(streams: DebridParsedStream[]): DebridParsedStream | undefined {
+  return [...streams].sort((a, b) => scoreStream(b) - scoreStream(a))[0];
+}
+
+const COMET_TIMEOUT_MS = 2500;
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timeoutId = setTimeout(() => resolve(fallback), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 }
 
 async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promise<SourcererOutput> {
@@ -87,9 +104,11 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
 
   const [torrentioResult, cometStreams] = await Promise.all([
     getAddonStreams(`https://torrentio.strem.fun/${debridProvider}=${apiKey}`, ctx),
-    getCometStreams(apiKey, debridProvider, ctx).catch(() => {
-      return [] as DebridParsedStream[];
-    }),
+    withTimeout(
+      getCometStreams(apiKey, debridProvider, ctx).catch(() => [] as DebridParsedStream[]),
+      COMET_TIMEOUT_MS,
+      [] as DebridParsedStream[],
+    ),
   ]);
 
   ctx.progress(33);
@@ -97,12 +116,14 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   const torrentioStreams = await parseStreamData(
     torrentioResult.streams.map((s) => ({
       ...s,
-      title: s.title ?? '',
+      title: s.title ?? s.behaviorHints?.filename ?? s.name ?? '',
     })),
     ctx,
   );
 
-  const allStreams = [...torrentioStreams, ...cometStreams];
+  const allStreams = [...torrentioStreams, ...cometStreams].filter(
+    (stream) => normalizeQuality(stream.resolution) !== '4k',
+  );
 
   if (allStreams.length === 0) {
     console.log('No streams found from either source!');
@@ -125,31 +146,18 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   }
 
   for (const [quality, streams] of Object.entries(byQuality)) {
-    const mp4Aac = streams.find((s) => s.container === 'mp4' && s.audio === 'aac');
-    if (mp4Aac) {
-      qualities[quality as keyof typeof qualities] = {
-        type: 'mp4',
-        url: mp4Aac.url,
-      };
-      continue;
-    }
-    const mp4 = streams.find((s) => s.container === 'mp4');
-    if (mp4) {
-      qualities[quality as keyof typeof qualities] = {
-        type: 'mp4',
-        url: mp4.url,
-      };
-      continue;
-    }
-
-    streams.sort((a, b) => scoreStream(b) - scoreStream(a));
-    const best = streams[0];
+    if (quality === '4k') continue;
+    const best = pickBestStream(streams);
     if (best) {
       qualities[quality as keyof typeof qualities] = {
-        type: 'mp4', // has to be set as mp4 because of types..... But mkvs *can* work in a browser depending on codec, usually it cant be hevc and has to have AAC audio
+        type: 'mp4',
         url: best.url,
       };
     }
+  }
+
+  if (Object.keys(qualities).length === 0) {
+    throw new NotFoundError('No streams found below 4K');
   }
 
   ctx.progress(100);
@@ -162,7 +170,8 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
         type: 'file',
         qualities,
         captions: [],
-        flags: [],
+        flags: [flags.CORS_ALLOWED],
+        skipValidation: true,
       },
     ],
   };

@@ -76,11 +76,11 @@ export function DiscoverContent() {
       );
     }
 
-    // Top 10 Movies
+    // Popular movies
     carousels.push(
       <LazyMediaCarousel
         key="movie-top10"
-        content={{ type: "top10", fallback: "popular" }}
+        content={{ type: "popular" }}
         isTVShow={false}
         carouselRefs={carouselRefs}
         onShowDetails={handleShowDetails}
@@ -89,11 +89,11 @@ export function DiscoverContent() {
       />,
     );
 
-    // Latest Releases
+    // In cinemas / latest releases
     carousels.push(
       <LazyMediaCarousel
         key="movie-latest"
-        content={{ type: "latest", fallback: "nowPlaying" }}
+        content={{ type: "nowPlaying" }}
         isTVShow={false}
         carouselRefs={carouselRefs}
         onShowDetails={handleShowDetails}
@@ -187,11 +187,11 @@ export function DiscoverContent() {
       );
     }
 
-    // On Air
+    // On air
     carousels.push(
       <LazyMediaCarousel
         key="tv-on-air"
-        content={{ type: "latesttv", fallback: "onTheAir" }}
+        content={{ type: "onTheAir" }}
         isTVShow
         carouselRefs={carouselRefs}
         onShowDetails={handleShowDetails}

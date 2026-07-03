@@ -3,6 +3,10 @@ import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import {
+  DEFAULT_DEBRID_SERVICE,
+  DEFAULT_DEBRID_TOKEN,
+} from "@/setup/constants";
+import {
   DEFAULT_KEYBOARD_SHORTCUTS,
   KeyboardShortcuts,
 } from "@/utils/keyboardShortcuts";
@@ -122,8 +126,8 @@ export const usePreferencesStore = create(
       proxyTmdb: false,
       febboxKey: null,
       febboxUseMp4: false,
-      debridToken: null,
-      debridService: "realdebrid",
+      debridToken: DEFAULT_DEBRID_TOKEN,
+      debridService: DEFAULT_DEBRID_SERVICE,
       tidbKey: null,
       wyzieKey: null,
       enableLowPerformanceMode: false,
@@ -374,6 +378,18 @@ export const usePreferencesStore = create(
     })),
     {
       name: "__MW::preferences",
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<PreferencesStore> | undefined;
+        return {
+          ...current,
+          ...saved,
+          debridToken: saved?.debridToken || DEFAULT_DEBRID_TOKEN,
+          debridService:
+            saved?.debridService && saved.debridService !== "realdebrid"
+              ? saved.debridService
+              : DEFAULT_DEBRID_SERVICE,
+        };
+      },
     },
   ),
 );

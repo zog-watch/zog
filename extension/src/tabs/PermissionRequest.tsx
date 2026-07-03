@@ -37,20 +37,6 @@ export default function PermissionRequest() {
         </p>
 
         <div className="card-list" style={{ marginTop: '2.5rem' }}>
-          <Card
-            purple
-            icon={<Icon name="github" />}
-            right={
-              <Button type="secondary" href="https://github.com/zog-watch/zog/tree/main/extension">
-                Read source code
-              </Button>
-            }
-          >
-            <h3>Read the source code on GitHub</h3>
-            <p className="text-color paragraph">
-              Don&apos;t trust us? Read the code and decide for yourself if it&apos;s safe!
-            </p>
-          </Card>
         </div>
 
         <h2>Permission list</h2>
@@ -66,7 +52,7 @@ export default function PermissionRequest() {
             <h3>Network Requests</h3>
             <p className="text-color paragraph">
               This permission allows the extension to instruct the browser how to request data from sites. In more
-              technical terms, this allows Zog, movie-web, sudo-flix, watch.lonelil.ru, etc to modify HTTP headers
+              technical terms, this allows Zog to modify HTTP headers
               that it wouldn&apos;t normally be allowed to.
             </p>
             <p className="text-color paragraph">

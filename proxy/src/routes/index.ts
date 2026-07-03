@@ -11,10 +11,8 @@ import {
 } from '@/utils/turnstile';
 
 export default defineEventHandler(async (event) => {
-  // Handle preflight CORS requests
+  // Handle preflight CORS requests (headers set by middleware)
   if (isPreflightRequest(event)) {
-    handleCors(event, {});
-    // Ensure the response ends here for preflight
     event.node.res.statusCode = 204;
     event.node.res.end();
     return;

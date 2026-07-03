@@ -264,10 +264,7 @@ async function proxyM3U8(event: any) {
       // Set appropriate headers
       setResponseHeaders(event, {
         'Content-Type': 'application/vnd.apple.mpegurl',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Methods': '*',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       });
       
       return newLines.join("\n");
@@ -334,10 +331,7 @@ async function proxyM3U8(event: any) {
       // Set appropriate headers
       setResponseHeaders(event, {
         'Content-Type': 'application/vnd.apple.mpegurl',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Methods': '*',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       });
       
       return newLines.join("\n");
@@ -361,8 +355,11 @@ export function handleCacheStats(event: any) {
 }
 
 export default defineEventHandler(async (event) => {
-  // Handle CORS preflight requests
-  if (isPreflightRequest(event)) return handleCors(event, {});
+  if (isPreflightRequest(event)) {
+    event.node.res.statusCode = 204;
+    event.node.res.end();
+    return;
+  }
 
   if (process.env.DISABLE_M3U8 === 'true') {
     return sendError(event, createError({

@@ -30,11 +30,8 @@ import { changeAppLanguage, useLanguageStore } from "@/stores/language";
 import { ProgressSyncer } from "@/stores/progress/ProgressSyncer";
 import { SettingsSyncer } from "@/stores/subtitles/SettingsSyncer";
 import { ThemeProvider } from "@/stores/theme";
-import { TraktBookmarkSyncer } from "@/stores/trakt/TraktBookmarkSyncer";
-import { TraktHistorySyncer } from "@/stores/trakt/TraktHistorySyncer";
 import { SimklBookmarkSyncer } from "@/stores/simkl/SimklBookmarkSyncer";
 import { SimklHistorySyncer } from "@/stores/simkl/SimklHistorySyncer";
-import { TraktScrobbler } from "@/stores/trakt/TraktScrobbler";
 import { WatchHistorySyncer } from "@/stores/watchHistory/WatchHistorySyncer";
 import { detectRegion, useRegionStore } from "@/utils/detectRegion";
 
@@ -272,11 +269,8 @@ root.render(
             <WatchHistorySyncer />
             <GroupSyncer />
             <SettingsSyncer />
-            <TraktBookmarkSyncer />
-            <TraktHistorySyncer />
             <SimklBookmarkSyncer />
             <SimklHistorySyncer />
-            <TraktScrobbler />
             <TheRouter>
               <MigrationRunner />
             </TheRouter>

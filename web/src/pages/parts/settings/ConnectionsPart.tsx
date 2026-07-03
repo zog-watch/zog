@@ -36,7 +36,6 @@ import { conf } from "@/setup/config";
 import { useAuthStore } from "@/stores/auth";
 import { usePreferencesStore } from "@/stores/preferences";
 import { useSimklStore } from "@/stores/simkl/store";
-import { useTraktStore } from "@/stores/trakt/store";
 import { simklService } from "@/utils/simkl";
 
 import { RegionSelectorPart } from "./RegionSelectorPart";
@@ -791,76 +790,6 @@ export function WyzieEdit() {
   );
 }
 
-export function TraktEdit() {
-  const { t } = useTranslation();
-  const { user, status, logout, error } = useTraktStore();
-  const config = conf();
-
-  const connect = () => {
-    const params = new URLSearchParams({
-      response_type: "code",
-      client_id: config.TRAKT_CLIENT_ID ?? "",
-      redirect_uri: config.TRAKT_REDIRECT_URI ?? "",
-    });
-    window.location.href = `https://trakt.tv/oauth/authorize?${params.toString()}`;
-  };
-
-  if (
-    !config.TRAKT_CLIENT_ID ||
-    !config.TRAKT_CLIENT_SECRET ||
-    !config.TRAKT_REDIRECT_URI
-  )
-    return null;
-
-  return (
-    <SettingsCard paddingClass="px-5 py-4">
-      <div className="flex flex-col h-full">
-        <p className="text-white font-bold mb-2">
-          {t("settings.connections.trakt.title")}
-        </p>
-        <p className="font-medium text-sm text-type-secondary mb-1">
-          {t("settings.connections.trakt.description")}
-        </p>
-        <p className="text-type-secondary text-xs mb-4">
-          {t("settings.connections.trakt.details")}
-        </p>
-        {error && <p className="text-type-danger text-sm mb-2">{error}</p>}
-        <div className="mt-auto">
-          {user ? (
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                {user.images?.avatar?.full && (
-                  <img
-                    src={user.images.avatar.full}
-                    alt={user.username}
-                    className="w-7 h-7 rounded-full flex-shrink-0"
-                  />
-                )}
-                <span className="font-bold truncate">
-                  {user.name || user.username}
-                </span>
-              </div>
-              <Button theme="danger" onClick={logout}>
-                {t("settings.connections.trakt.disconnect")}
-              </Button>
-            </div>
-          ) : (
-            <Button
-              theme="purple"
-              onClick={connect}
-              disabled={status === "syncing"}
-            >
-              {status === "syncing"
-                ? t("settings.connections.trakt.syncing")
-                : t("settings.connections.trakt.connect")}
-            </Button>
-          )}
-        </div>
-      </div>
-    </SettingsCard>
-  );
-}
-
 export function SimklEdit() {
   const { user, status, logout, error } = useSimklStore();
   const config = conf();
@@ -964,7 +893,6 @@ export function ConnectionsPart(
         <div className="grid gap-4 md:grid-cols-2">
           <TIDBEdit tidbKey={props.tidbKey} setTIDBKey={props.setTIDBKey} />
           <WyzieEdit />
-          <TraktEdit />
           <SimklEdit />
         </div>
       </div>

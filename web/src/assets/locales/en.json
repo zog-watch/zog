@@ -1,6 +1,6 @@
 {
   "about": {
-    "description": "Zog is a fork of movie-web that is ensured to stay up even after the shutdown of movie-web.app. Zog runs on a private, self-hosted VPS. I run this site at a loss; there are very minimal ads due to my beliefs in free media.",
+    "description": "Zog is a free streaming platform for movies and shows at zog.watch.",
     "help": "Can't find an answer? <0>Get support here.</0>",
     "faqTitle": "Common questions",
     "searchPlaceholder": "Search FAQ...",
@@ -33,7 +33,7 @@
     },
     "q5": {
       "title": "How can I find out more?",
-      "body": "Zog has a Fluxer server that can be found at the header of this page!",
+      "body": "Visit the Support page or email the address at the bottom of this site.",
       "section": "general"
     },
     "q6": {
@@ -469,14 +469,12 @@
       }
     },
     "support": {
-      "title": "Zog needs your help!",
-      "description": "Zog is run at a loss, and we need help to keep it ad free! If you enjoy using Zog, please consider donating to help us cover our costs.",
+      "title": "Zog",
+      "description": "Free movies and shows at zog.watch.",
       "moreInfo": "More info",
-      "explanation": "If you aren't using the extension, it may be harder to find content! We want to fix this, but it's a lot harder to provide content without expensive servers. So please, if you enjoy using Zog, please consider donating to help us cover our growing costs.",
-      "explanation2": "If you want more info, please join our ",
-      "fluxer": "Discord",
-      "thankYou": "Thank you for your support!",
-      "donate": "Donate",
+      "explanation": "Zog streams through hosted infrastructure — no extension required.",
+      "explanation2": "Questions? Email the address at the bottom of this site.",
+      "thankYou": "Thanks for using Zog!",
       "label": "Project Funding: ${{current}} / ${{goal}}",
       "complete": "complete"
     }
@@ -704,7 +702,7 @@
             "fedapi": "Additional: Febbox token",
             "fedapiDescription": "Bring your own FREE Febbox account to gain access to FED API, the best sources with 4K quality, Dolby Atmos, skip intro and the fastest load times! Highly recommended option!"
           },
-          "outro": "If you have more questions on how this works, feel free to ask on the <0>Zog Discord</0> server!"
+          "outro": "If you have more questions, visit the Support page or email us."
         },
         "recommended": {
           "title": "Not sure what to choose?",
@@ -1123,7 +1121,7 @@
     "title": "Support",
     "text": "Zog is designed to be as user-friendly as possible. However, people still have questions and issues. This page is here to help resolve these shortcomings",
     "q1": {
-      "body": "You can join the official <0>Zog discord</0> and ask questions there or you can email the one provided at the bottom of this page.",
+      "body": "Email the address at the bottom of this page for help.",
       "title": "Where can I get help?"
     },
     "q2": {
@@ -1133,7 +1131,7 @@
   },
   "jip": {
     "title": "Jip",
-    "text": "movie-web didn't fall out of a coconut tree, it was made mostly by a single person (a very epic one at that)."
+    "text": "Zog is built for watching movies and shows without hassle."
   },
   "pas": {
     "title": "Pas",

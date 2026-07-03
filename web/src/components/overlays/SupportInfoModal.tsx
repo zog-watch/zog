@@ -11,10 +11,7 @@ export function SupportInfoModal({ id }: { id: string }) {
       <div className="space-y-4">
         <p className="text-type-secondary">{t("home.support.explanation")}</p>
         <p className="text-type-secondary">
-          {t("home.support.explanation2")}{" "}
-          <MwLink url="https://discord.gg/wmbWfk4SGy">
-            {t("home.support.fluxer")}
-          </MwLink>
+          {t("home.support.explanation2")}
         </p>
         <div className="text-xs text-type-dimmed text-center">
           {t("home.support.thankYou")}

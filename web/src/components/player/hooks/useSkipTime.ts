@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 // import { proxiedFetch } from "@/backend/helpers/fetch";
-import { mwFetch, proxiedFetch } from "@/backend/helpers/fetch";
+import { proxiedFetch } from "@/backend/helpers/fetch";
 import { usePlayerMeta } from "@/components/player/hooks/usePlayerMeta";
 import { conf } from "@/setup/config";
 import type { PlayerMeta } from "@/stores/player/slices/source";
@@ -81,11 +81,18 @@ export function useSkipTime() {
           apiUrl += `&duration_ms=${durationMs}`;
         }
 
-        const data = await mwFetch(apiUrl, {
-          headers: {
-            Authorization: tidbKey ? `Bearer ${tidbKey}` : undefined,
-          } as HeadersInit,
-        });
+        const headers: HeadersInit = {};
+        if (tidbKey) headers.Authorization = `Bearer ${tidbKey}`;
+
+        const response = await fetch(apiUrl, { headers });
+        if (response.status === 404) {
+          return { segments: [], tidbNotFound: true };
+        }
+        if (!response.ok) {
+          throw new Error(`TIDB request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
 
         const fetchedSegments: SegmentData[] = [];
         const segmentTypes = [

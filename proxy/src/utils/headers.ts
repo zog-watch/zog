@@ -60,8 +60,6 @@ export function getAfterResponseHeaders(
     output['X-Set-Cookie'] = headers.get('Set-Cookie') ?? '';
 
   return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Expose-Headers': '*',
     Vary: 'Origin',
     'X-Final-Destination': finalUrl,
     ...output,

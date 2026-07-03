@@ -191,6 +191,10 @@ export function MediaCarousel({
     content.type,
   ]);
 
+  const needsProviderId = showProviders && !selectedProviderId;
+  const needsGenreId = showGenres && !selectedGenreId;
+  const needsRecommendationId = showRecommendations && !selectedRecommendationId;
+
   // Fetch media using our hook
   const { media, sectionTitle, actualContentType, error, isLoading } =
     useDiscoverMedia({
@@ -202,6 +206,7 @@ export function MediaCarousel({
       providerName: selectedProviderName,
       mediaTitle: selectedRecommendationTitle,
       isCarouselView: true,
+      enabled: !needsProviderId && !needsGenreId && !needsRecommendationId,
     });
 
   // Hide section if there's an error or no content (after loading is complete)

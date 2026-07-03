@@ -7,7 +7,7 @@ node_modules/
 .nitro/
 dist/
 build/
-lib/
+providers/lib/
 .astro/
 
 # Generated files
@@ -41,3 +41,4 @@ coverage/
 # Misc
 *.pem
 *.key
+*.timestamp-*.mjs

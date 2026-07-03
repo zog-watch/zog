@@ -87,6 +87,7 @@
     "vitest": "^1.6.1"
   },
   "dependencies": {
+    "@viren070/parse-torrent-title": "^0.7.6",
     "abort-controller": "^3.0.0",
     "cheerio": "1.0.0-rc.12",
     "cookie": "^0.6.0",

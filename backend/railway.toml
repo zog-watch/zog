@@ -1,3 +1,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "backend/Dockerfile"
+
+[deploy]
+startCommand = "sh -c './node_modules/.bin/prisma migrate deploy && node .output/server/index.mjs'"
+healthcheckPath = "/healthcheck"
+healthcheckTimeout = 300

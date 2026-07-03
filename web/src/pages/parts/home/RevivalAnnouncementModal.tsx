@@ -84,8 +84,7 @@ export function RevivalAnnouncementModal() {
                     📌 Visit zog.watch
                   </a>
                   <p className="text-sm text-type-secondary">
-                    Join our Discord for support, updates, and to be part of the
-                    community.
+                    Enjoy streaming at zog.watch.
                   </p>
                   <button
                     type="button"

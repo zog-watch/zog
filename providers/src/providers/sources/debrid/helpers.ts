@@ -2,6 +2,7 @@
 
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 
+import { parseDebridStreams } from './parseTitle';
 import { DebridParsedStream, stremioStream } from './types';
 
 export async function getAddonStreams(
@@ -36,13 +37,7 @@ interface StreamInput {
 
 export async function parseStreamData(
   streams: StreamInput[],
-  ctx: MovieScrapeContext | ShowScrapeContext,
+  _ctx?: MovieScrapeContext | ShowScrapeContext,
 ): Promise<DebridParsedStream[]> {
-  return ctx.proxiedFetcher('https://torrent-parse.zog.watch', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(streams),
-  });
+  return parseDebridStreams(streams);
 }

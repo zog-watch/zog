@@ -207,13 +207,6 @@ function DefaultExtensionPage(props: ExtensionPageProps) {
       </div>
 
       <ExtensionStatus status={props.status} loading={props.loading} showHelp />
-      <Link
-        href="https://github.com/zog-watch/zog/tree/main/extension"
-        target="_blank"
-        className="pt-4 !text-type-dimmed"
-      >
-        See extension source code
-      </Link>
     </>
   );
 }

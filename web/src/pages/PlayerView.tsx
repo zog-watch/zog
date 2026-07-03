@@ -1,13 +1,6 @@
 import { RunOutput } from "@zog/providers";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import { useAsync } from "react-use";
-
+import { useNavigate, useParams } from "react-router-dom";
 import { getProviders } from "@/backend/providers/providers";
 import { DetailedMeta } from "@/backend/metadata/getmeta";
 import { usePlayer } from "@/components/player/hooks/usePlayer";
@@ -29,7 +22,6 @@ import { PlayerMeta, playerStatus } from "@/stores/player/slices/source";
 import { usePlayerStore } from "@/stores/player/store";
 import { usePreferencesStore } from "@/stores/preferences";
 import { getProgressPercentage, useProgressStore } from "@/stores/progress";
-import { needsOnboarding } from "@/utils/onboarding";
 import { parseTimestamp } from "@/utils/timestamp";
 
 import { BlurEllipsis } from "./layouts/SubPageLayout";
@@ -260,12 +252,14 @@ export function RealPlayerView() {
                 sourceOrder,
                 sources,
               });
-              setScrapeNotFound();
               // Clear resume state after scraping
               setResumeFromSourceId(null);
               setResumeFromSourceIdInStore(null);
             }}
-            onGetStream={playAfterScrape}
+            onGetStream={(out) => {
+              if (out) playAfterScrape(out);
+              else setScrapeNotFound();
+            }}
           />
         )
       ) : null}
@@ -284,23 +278,6 @@ export function RealPlayerView() {
 }
 
 export function PlayerView() {
-  const loc = useLocation();
-  const { loading, error, value } = useAsync(() => {
-    return needsOnboarding();
-  });
-
-  if (error) throw new Error("Failed to detect onboarding");
-  if (loading) return null;
-  if (value)
-    return (
-      <Navigate
-        replace
-        to={{
-          pathname: "/onboarding",
-          search: `redirect=${encodeURIComponent(loc.pathname)}`,
-        }}
-      />
-    );
   return <RealPlayerView />;
 }
 

@@ -1,7 +1,7 @@
 import {
   defineRailway,
-  github,
   postgres,
+  preserve,
   project,
   service,
   volume,
@@ -17,21 +17,14 @@ const fn = defineRailway(() => {
     volumeMounts: { "/var/lib/postgresql/data": pgData },
   });
 
-  const githubSource = github("zog-watch/zog", {
-    rootDirectory: ".",
-    branch: "main",
-  });
-
   const backend = service("zog-backend", {
-    source: githubSource,
     build: { builder: "DOCKERFILE", dockerfilePath: "backend/Dockerfile" },
-    startCommand:
-      "sh -c 'pnpm prisma migrate deploy && node .output/server/index.mjs'",
+    startCommand: "sh -c './node_modules/.bin/prisma migrate deploy && node .output/server/index.mjs'",
     healthcheck: "/healthcheck",
     env: {
       DATABASE_URL: db.env.DATABASE_URL,
-      CRYPTO_SECRET: "REPLACE_ME_RUN_openssl_rand_base64_32",
-      TMDB_API_KEY: "REPLACE_ME_TMDB_API_KEY",
+      CRYPTO_SECRET: preserve(),
+      TMDB_API_KEY: preserve(),
       META_NAME: "Zog Backend",
       META_DESCRIPTION: "Zog API backend",
       CAPTCHA: "false",
@@ -39,45 +32,39 @@ const fn = defineRailway(() => {
   });
 
   const proxy = service("zog-proxy", {
-    source: githubSource,
     build: { builder: "DOCKERFILE", dockerfilePath: "proxy/Dockerfile" },
     startCommand: "node .output/server/index.mjs",
     healthcheck: "/",
+    env: {
+      UPSTREAM_PROXY: preserve(),
+    },
   });
 
   const web = service("zog-web", {
-    source: githubSource,
     build: { builder: "DOCKERFILE", dockerfilePath: "web/Dockerfile" },
     startCommand: "nginx -g 'daemon off;'",
-    healthcheck: "/",
+    healthcheck: "/health",
     env: {
-      VITE_TMDB_READ_API_KEY: "REPLACE_ME_TMDB_API_KEY",
+      VITE_TMDB_READ_API_KEY: preserve(),
       VITE_APP_DOMAIN: "https://zog.watch",
-      VITE_BACKEND_URL: backend.env.RAILWAY_PUBLIC_DOMAIN
-        ? `https://${backend.env.RAILWAY_PUBLIC_DOMAIN}`
-        : "http://localhost:3000",
-      VITE_CORS_PROXY_URL: proxy.env.RAILWAY_PUBLIC_DOMAIN
-        ? `https://${proxy.env.RAILWAY_PUBLIC_DOMAIN}`
-        : "http://localhost:3001",
-      VITE_M3U8_PROXY_URL: proxy.env.RAILWAY_PUBLIC_DOMAIN
-        ? `https://${proxy.env.RAILWAY_PUBLIC_DOMAIN}`
-        : "http://localhost:3001",
+      VITE_BACKEND_URL: "https://api.zog.watch",
+      VITE_CORS_PROXY_URL: "https://proxy.zog.watch",
+      VITE_M3U8_PROXY_URL: "https://proxy.zog.watch",
       VITE_DMCA_EMAIL: "dmca@zog.watch",
       VITE_NORMAL_ROUTER: "true",
       VITE_PWA_ENABLED: "true",
-      VITE_HAS_ONBOARDING: "true",
+      VITE_HAS_ONBOARDING: "false",
       VITE_ALLOW_AUTOPLAY: "false",
     },
   });
 
   const docs = service("zog-docs", {
-    source: githubSource,
     build: { builder: "DOCKERFILE", dockerfilePath: "docs/Dockerfile" },
     startCommand: "nginx -g 'daemon off;'",
     healthcheck: "/",
     env: {
-      SITE_URL: "https://zog.watch",
-      BASE_PATH: "/docs",
+      SITE_URL: "https://docs.zog.watch",
+      BASE_PATH: "/",
     },
   });
 

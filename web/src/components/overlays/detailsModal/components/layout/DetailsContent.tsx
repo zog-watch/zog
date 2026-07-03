@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useCopyToClipboard } from "react-use";
 
 import { getSeasonDetails } from "@/backend/metadata/tmdb";
-import { getNetworkContent } from "@/backend/metadata/traktApi";
 import { TMDBContentTypes } from "@/backend/metadata/types/tmdb";
 import { Icon, Icons } from "@/components/Icon";
 import { useLanguageStore } from "@/stores/language";
@@ -27,9 +26,6 @@ import { DetailsInfo } from "../sections/DetailsInfo";
 export function DetailsContent({ data, minimal = false }: DetailsContentProps) {
   const [imdbData, setImdbData] = useState<any>(null);
   const [rtData, setRtData] = useState<any>(null);
-  const [providerData, setProviderData] = useState<string | undefined>(
-    undefined,
-  );
   const [, setIsLoadingImdb] = useState(false);
   const [showTrailer, setShowTrailer] = useState(false);
   const [showCollection, setShowCollection] = useState(false);
@@ -137,30 +133,6 @@ export function DetailsContent({ data, minimal = false }: DetailsContentProps) {
       return () => resizeObserver.disconnect();
     }
   }, []);
-
-  useEffect(() => {
-    const fetchNetworkData = async () => {
-      if (!data.id) return;
-
-      try {
-        const networkData = await getNetworkContent(data.id.toString());
-        if (
-          networkData &&
-          networkData.platforms &&
-          networkData.platforms.length > 0
-        ) {
-          setProviderData(networkData.platforms[0]);
-        } else {
-          setProviderData(undefined);
-        }
-      } catch (error) {
-        console.error("Failed to fetch network data:", error);
-        setProviderData(undefined);
-      }
-    };
-
-    fetchNetworkData();
-  }, [data.id]);
 
   useEffect(() => {
     const fetchExternalData = async () => {
@@ -449,7 +421,7 @@ export function DetailsContent({ data, minimal = false }: DetailsContentProps) {
               data={data}
               imdbData={imdbData}
               rtData={rtData}
-              provider={providerData}
+              provider={undefined}
               onCollectionClick={() => setShowCollection(true)}
             />
           </div>
