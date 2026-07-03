@@ -1,4 +1,5 @@
 import { runCleanup } from "@/utils/cache";
+import { recoverIndexFromS3 } from "@/utils/s3recover";
 
 export default defineNitroPlugin(() => {
   const cfg = useRuntimeConfig().cache;
@@ -19,7 +20,17 @@ export default defineNitroPlugin(() => {
     }
   };
 
-  // first run after a short delay (let things settle)
-  setTimeout(tick, 30_000);
+  // first run: recover index from S3, then clean up
+  setTimeout(async () => {
+    try {
+      const recovered = await recoverIndexFromS3();
+      if (recovered > 0) {
+        console.log(`[zog-cache] recovered ${recovered} entries from S3`);
+      }
+    } catch (err) {
+      console.error("[zog-cache] S3 recovery error:", err);
+    }
+    tick();
+  }, 30_000);
   setInterval(tick, interval);
 });
