@@ -45,8 +45,10 @@ export async function searchIndexer(
     headers: { "User-Agent": "Mozilla/5.0 (zognet addon)" },
   });
   if (!res.ok) {
-    throw new Error(`indexer ${res.status}: ${await res.text().catch(() => "")}`);
+    const body = await res.text().catch(() => "");
+    throw new Error(`indexer ${res.status} url=${url.slice(0, 100)}... body=${body.slice(0, 200)}`);
   }
   const jsonRes = (await res.json()) as IndexerResponse;
+  console.log(`[indexer] ${id} returned ${jsonRes.streams?.length ?? 0} streams`);
   return jsonRes.streams ?? [];
 }
