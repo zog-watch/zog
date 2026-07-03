@@ -49,6 +49,6 @@ export async function searchIndexer(
     throw new Error(`indexer ${res.status} url=${url.slice(0, 100)}... body=${body.slice(0, 200)}`);
   }
   const jsonRes = (await res.json()) as IndexerResponse;
-  console.log(`[indexer] ${id} returned ${jsonRes.streams?.length ?? 0} streams`);
+  console.log(`[indexer] ${id} returned ${jsonRes.streams?.length ?? 0} streams (raw keys: ${Object.keys(jsonRes).join(",")}, first: ${JSON.stringify(jsonRes.streams?.[0] ?? jsonRes).slice(0, 200)})`);
   return jsonRes.streams ?? [];
 }
