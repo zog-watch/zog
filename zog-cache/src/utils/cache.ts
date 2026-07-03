@@ -169,40 +169,24 @@ export async function downloadAndCache(req: CacheRequest): Promise<FetchResult> 
       throw new Error(`File too large: ${contentLength} bytes`);
     }
 
-    // Track bytes as we consume the upstream body
     const body = res.body;
     if (!body) {
       throw new Error("Upstream returned no body");
     }
     let bytes = 0;
-    const countingBody = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        const reader = body.getReader();
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (value) {
-              bytes += value.byteLength;
-              if (bytes > MAX_DOWNLOAD_BYTES) {
-                try { controller.error(new Error(`File too large (>${MAX_DOWNLOAD_BYTES})`)); } catch {}
-                try { reader.cancel(); } catch {}
-                return;
-              }
-              controller.enqueue(value);
-            }
-          }
-          controller.close();
-        } catch (err) {
-          try { controller.error(err); } catch {}
+    const countingStream = new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        bytes += chunk.byteLength;
+        if (bytes > MAX_DOWNLOAD_BYTES) {
+          controller.error(new Error(`File too large (>${MAX_DOWNLOAD_BYTES})`));
+        } else {
+          controller.enqueue(chunk);
         }
-      },
-      cancel() {
-        try { body.cancel(); } catch {}
       },
     });
 
-    // Stream directly to S3 — no buffering of the whole file in memory
+    const pipedBody = body.pipeThrough(countingStream);
+
     const client = getS3Client();
     const bucket = getBucket();
     const upload = new Upload({
@@ -210,7 +194,7 @@ export async function downloadAndCache(req: CacheRequest): Promise<FetchResult> 
       params: {
         Bucket: bucket,
         Key: objectKey,
-        Body: countingBody,
+        Body: pipedBody,
         ContentType: contentType,
       },
       queueSize: 4,
