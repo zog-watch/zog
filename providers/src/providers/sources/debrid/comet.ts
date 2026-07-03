@@ -8,33 +8,18 @@ export async function getCometStreams(
   debridProvider: debridProviders,
   ctx: MovieScrapeContext | ShowScrapeContext,
 ): Promise<DebridParsedStream[]> {
-  const cometBaseUrl = 'https://addon.zog.watch'; // Self-hosted Zog Net addon (replaces elfhosted comet)
-  // If you're unfamiliar with Stremio addons, basically stremio addons are just api endpoints, and so they have to encode the config in the url to be able to have a config that works with stremio
-  // So this just constructs the user's config for Comet. It could be customized to your liking as well!
-  const cometConfig = btoa(
-    JSON.stringify({
-      maxResultsPerResolution: 0,
-      maxSize: 0,
-      cachedOnly: false,
-      removeTrash: true,
-      resultFormat: ['all'],
-      debridService: debridProvider,
-      debridApiKey: token,
-      debridStreamProxyPassword: '',
-      languages: { exclude: [], preferred: ['en'] },
-      resolutions: {},
-      options: { remove_ranks_under: -10000000000, allow_english_in_languages: false, remove_unknown_languages: false },
-    }),
-  );
-
-  const cometStreamsRaw = (await getAddonStreams(`${cometBaseUrl}/${cometConfig}`, ctx)).streams;
-  const newStreams: { title: string; url: string }[] = [];
+  const cometBaseUrl = 'https://comet.zog.watch';
+  const cometStreamsRaw = (await getAddonStreams(cometBaseUrl, ctx)).streams;
+  const newStreams: { title: string; url?: string; infoHash?: string; fileIdx?: number }[] = [];
 
   for (let i = 0; i < cometStreamsRaw.length; i++) {
-    if (cometStreamsRaw[i].description !== undefined)
+    const raw = cometStreamsRaw[i];
+    if (raw.description !== undefined)
       newStreams.push({
-        title: (cometStreamsRaw[i].description as string).replace(/\n/g, ''),
-        url: cometStreamsRaw[i].url,
+        title: (raw.description as string).replace(/\n/g, ''),
+        url: raw.url,
+        infoHash: raw.infoHash,
+        fileIdx: raw.fileIdx,
       });
   }
   const parsedData = await parseStreamData(newStreams, ctx);
