@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 
+import { ProfileGate } from "@/components/profile/ProfileGate";
 import { useBannerSize, useBannerStore } from "@/stores/banner";
 import { BannerLocation } from "@/stores/banner/BannerLocation";
 
@@ -20,6 +21,7 @@ export function Layout(props: { children: ReactNode }) {
       >
         {props.children}
       </div>
+      <ProfileGate />
     </div>
   );
 }

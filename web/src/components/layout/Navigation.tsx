@@ -13,6 +13,7 @@ import { BlurEllipsis } from "@/pages/layouts/SubPageLayout";
 import { conf } from "@/setup/config";
 import { useBannerSize } from "@/stores/banner";
 import { usePreferencesStore } from "@/stores/preferences";
+import { useProfileStore } from "@/stores/profile";
 
 import { HomeSectionCustomizer } from "@/pages/parts/home/HomeSectionCustomizer";
 
@@ -20,13 +21,13 @@ import { BrandPill } from "./BrandPill";
 
 function HomeLayoutCustomizerToggle() {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Only show on the exact home page path
   if (window.location.pathname !== "/") return null;
-  
+
   return (
     <div className="relative">
-      <button 
+      <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`group flex items-center h-10 rounded-full transition-all duration-300 ease-out overflow-hidden ${
@@ -47,11 +48,33 @@ function HomeLayoutCustomizerToggle() {
           Layout
         </span>
       </button>
-      <HomeSectionCustomizer 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
+      <HomeSectionCustomizer
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
       />
     </div>
+  );
+}
+
+function ProfileLockButton() {
+  const activeProfileId = useProfileStore((s) => s.activeProfileId);
+  const lock = useProfileStore((s) => s.lock);
+  if (!activeProfileId) return null;
+  return (
+    <button
+      type="button"
+      onClick={lock}
+      className="group flex items-center h-10 rounded-full transition-all duration-300 ease-out overflow-hidden bg-pill-background bg-opacity-50 text-white hover:bg-pill-backgroundHover hover:bg-opacity-100 hover:pr-4 active:scale-105"
+      title="Switch profile"
+      aria-label="Switch profile"
+    >
+      <div className="flex items-center justify-center w-10 h-10 shrink-0">
+        <Icon icon={Icons.UNLOCK} className="text-xl" />
+      </div>
+      <span className="font-medium text-sm whitespace-nowrap transition-all duration-300 ease-out max-w-0 opacity-0 group-hover:max-w-[120px] group-hover:opacity-100">
+        Switch profile
+      </span>
+    </button>
   );
 }
 
@@ -216,6 +239,7 @@ export function Navigation(props: NavigationProps) {
               </a>
             </div>
             <div className="relative pointer-events-auto flex items-center gap-3">
+              <ProfileLockButton />
               <HomeLayoutCustomizerToggle />
               <LinksDropdown>
                 {loggedIn ? <UserAvatar withName /> : <NoUserAvatar />}
