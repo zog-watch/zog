@@ -1,8 +1,14 @@
 import { searchIndexer } from "@/utils/indexer";
 import { ensureTorrentIdByHash, getDownloadUrl, getTorrentFiles, pickVideoFile } from "@/utils/torbox";
 
+function parseId(raw: string): string {
+  // URL convention is /stream/movie/:id.json — strip the trailing .json
+  return raw.replace(/\.json$/, "");
+}
+
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id") ?? "";
+  const rawId = getRouterParam(event, "id") ?? "";
+  const id = parseId(rawId);
   if (!id.startsWith("tt")) {
     throw createError({ statusCode: 400, statusMessage: "Invalid id" });
   }
@@ -19,15 +25,11 @@ export default defineEventHandler(async (event) => {
     console.error(`[stream/movie] indexer error for ${id}:`, err);
     return [];
   });
-  // dedupe by infoHash
   const seen = new Set<string>();
   const out: unknown[] = [];
   for (const s of streams) {
     if (!s.infoHash || seen.has(s.infoHash)) continue;
     seen.add(s.infoHash);
-    // build a self-hosted playback URL (slate replacement) bound to Railway's IP
-    // plus a TorBox download URL as a fallback the cache can use
-    const playback = `${base}/playback/${encodeURIComponent(s.infoHash)}/${s.fileIdx ?? 0}`;
     out.push({
       name: "Zog Net",
       title: s.title,

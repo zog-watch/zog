@@ -1,8 +1,12 @@
 import { searchIndexer } from "@/utils/indexer";
 
+function parseId(raw: string): string {
+  return raw.replace(/\.json$/, "");
+}
+
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id") ?? "";
-  // series id is like tt1234567:1:5 (imdb:season:episode)
+  const rawId = getRouterParam(event, "id") ?? "";
+  const id = parseId(rawId);
   if (!id.startsWith("tt")) {
     throw createError({ statusCode: 400, statusMessage: "Invalid id" });
   }
