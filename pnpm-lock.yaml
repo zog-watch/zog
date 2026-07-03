@@ -748,6 +748,40 @@ importers:
         specifier: ^7.3.0
         version: 7.4.1
 
+  zog-addon:
+    dependencies:
+      h3:
+        specifier: ^1.15.1
+        version: 1.15.11
+      nitropack:
+        specifier: ^2.11.9
+        version: 2.13.4(@electric-sql/pglite@0.4.1)(@vercel/blob@2.5.0)(mysql2@3.15.3)(vite@6.4.3(@types/node@24.10.0)(jiti@2.7.0)(less@4.6.7)(lightningcss@1.32.0)(sass@1.101.0)(terser@5.48.0)(tsx@4.22.5)(yaml@2.9.0))
+    devDependencies:
+      '@rollup/wasm-node':
+        specifier: ^4.40.0
+        version: 4.62.2
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.21.0
+        version: 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^6.21.0
+        version: 6.21.0(eslint@8.57.1)(typescript@5.9.3)
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
+      eslint-config-airbnb-base:
+        specifier: ^15.0.0
+        version: 15.0.0(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.2(eslint@8.57.1)
+      eslint-import-resolver-typescript:
+        specifier: ^3.10.1
+        version: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-plugin-prettier:
+        specifier: ^5.2.6
+        version: 5.5.6(@types/eslint@9.6.1)(eslint-config-prettier@9.1.2(eslint@8.57.1))(eslint@8.57.1)(prettier@3.9.4)
+
   zog-cache:
     dependencies:
       '@aws-sdk/client-s3':
@@ -18815,7 +18849,7 @@ snapshots:
       tinyglobby: 0.2.17
       unrs-resolver: 1.12.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.62.1(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 

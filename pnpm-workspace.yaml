@@ -3,6 +3,7 @@ packages:
   - 'backend'
   - 'proxy'
   - 'zog-cache'
+  - 'zog-addon'
   - 'providers'
   - 'extension'
   - 'desktop'

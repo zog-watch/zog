@@ -1,0 +1,30 @@
+{
+  "name": "zog-addon",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Zog self-hosted Stremio addon + playback proxy (replaces comet + slate)",
+  "scripts": {
+    "prepare": "nitropack prepare",
+    "dev": "nitropack dev",
+    "build": "nitropack build",
+    "start": "node .output/server/index.mjs",
+    "lint": "eslint --ext .ts src/",
+    "lint:fix": "eslint --fix --ext .ts src/",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "dependencies": {
+    "h3": "^1.15.1",
+    "nitropack": "^2.11.9"
+  },
+  "devDependencies": {
+    "@rollup/wasm-node": "^4.40.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.10.1",
+    "eslint-plugin-prettier": "^5.2.6"
+  },
+  "packageManager": "pnpm@9.14.4"
+}
