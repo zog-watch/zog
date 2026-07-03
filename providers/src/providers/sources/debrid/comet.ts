@@ -8,7 +8,7 @@ export async function getCometStreams(
   debridProvider: debridProviders,
   ctx: MovieScrapeContext | ShowScrapeContext,
 ): Promise<DebridParsedStream[]> {
-  const cometBaseUrl = 'https://comet.elfhosted.com'; // Free instance sponsored by ElfHosted, but you can customize it to your liking.
+  const cometBaseUrl = 'https://addon.zog.watch'; // Self-hosted Zog Net addon (replaces elfhosted comet)
   // If you're unfamiliar with Stremio addons, basically stremio addons are just api endpoints, and so they have to encode the config in the url to be able to have a config that works with stremio
   // So this just constructs the user's config for Comet. It could be customized to your liking as well!
   const cometConfig = btoa(
