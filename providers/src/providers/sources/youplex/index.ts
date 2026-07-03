@@ -52,9 +52,9 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 }
 
 const scrapers = [
-  { id: 'hdbox', emoji: '🔥🔥', baseRank: 210 },
-  { id: 'flixhq', emoji: '', baseRank: 200 },
-  { id: 'moviebox', emoji: '🔥 ', baseRank: 180 },
+  { id: 'hdbox', emoji: '🔥🔥', baseRank: 215 },
+  { id: 'flixhq', emoji: '', baseRank: 205 },
+  { id: 'moviebox', emoji: '🔥 ', baseRank: 187 },
 ];
 
 const finalSources: any[] = [];
