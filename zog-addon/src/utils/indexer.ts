@@ -27,7 +27,7 @@ export async function searchIndexer(
     debridApiKey: debridToken,
     debridStreamProxyPassword: "",
     languages: { exclude: [], preferred: ["en"] },
-    resolutions: { "4k": true, "1080p": true, "720p": true, "480p": true },
+    resolutions: {},
     options: {
       remove_ranks_under: -10000000000,
       allow_english_in_languages: false,
