@@ -36,15 +36,15 @@ export function AudioView({ id }: { id: string }) {
   const router = useOverlayRouter(id);
   const audioTracks = usePlayerStore((s) => s.audioTracks);
   const currentAudioTrack = usePlayerStore((s) => s.currentAudioTrack);
-  const changeAudioTrack = usePlayerStore((s) => s.display?.changeAudioTrack);
+  const changeAudioTrack = usePlayerStore((s) => s.changeAudioTrack);
 
   const change = useCallback(
     (track: AudioTrack) => {
-      changeAudioTrack?.(track);
-      router.close();
-    },
-    [router, changeAudioTrack],
-  );
+    changeAudioTrack(track);
+    router.close();
+  },
+  [router, changeAudioTrack],
+);
 
   return (
     <>

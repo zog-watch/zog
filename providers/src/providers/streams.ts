@@ -6,6 +6,13 @@ export type StreamFile = {
   url: string;
 };
 
+export type FileAudioVariant = {
+  id: string;
+  label: string;
+  language: string;
+  qualities: Partial<Record<Qualities, StreamFile>>;
+};
+
 export type Qualities = 'unknown' | '360' | '480' | '720' | '1080' | '4k';
 
 type ThumbnailTrack = {
@@ -26,6 +33,7 @@ type StreamCommon = {
 export type FileBasedStream = StreamCommon & {
   type: 'file';
   qualities: Partial<Record<Qualities, StreamFile>>;
+  audioVariants?: FileAudioVariant[];
 };
 
 export type HlsBasedStream = StreamCommon & {

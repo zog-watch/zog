@@ -108,6 +108,74 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: 
   }
 }
 
+function getStreamLanguage(stream: DebridParsedStream): string {
+  const raw = stream.languages?.[0]?.toLowerCase();
+  if (!raw) return stream.dubbed ? 'dubbed' : 'original';
+  if (raw.includes('english') || raw === 'en' || raw === 'eng') return 'en';
+  if (raw.includes('spanish') || raw === 'es' || raw === 'spa') return 'es';
+  if (raw.includes('french') || raw === 'fr' || raw === 'fre') return 'fr';
+  if (raw.includes('german') || raw === 'de' || raw === 'ger') return 'de';
+  if (raw.includes('italian') || raw === 'it' || raw === 'ita') return 'it';
+  if (raw.includes('portuguese') || raw === 'pt' || raw === 'por') return 'pt';
+  if (raw.includes('japanese') || raw === 'ja' || raw === 'jpn') return 'ja';
+  if (raw.includes('korean') || raw === 'ko' || raw === 'kor') return 'ko';
+  if (raw.includes('chinese') || raw === 'zh' || raw === 'chi') return 'zh';
+  return raw.replace(/[^a-z]/g, '').slice(0, 3) || 'unknown';
+}
+
+function languageLabel(language: string): string {
+  const labels: Record<string, string> = {
+    en: 'English',
+    es: 'Spanish',
+    fr: 'French',
+    de: 'German',
+    it: 'Italian',
+    pt: 'Portuguese',
+    ja: 'Japanese',
+    ko: 'Korean',
+    zh: 'Chinese',
+    dubbed: 'Dubbed',
+    original: 'Original',
+    unknown: 'Unknown',
+  };
+  return labels[language] ?? language;
+}
+
+type QualityMap = Partial<
+  Record<'4k' | 1080 | 720 | 480 | 360 | 'unknown', { type: 'mp4'; url: string }>
+>;
+
+function buildQualitiesFromStreams(streams: DebridParsedStream[]): QualityMap {
+  const byQuality: Record<string, DebridParsedStream[]> = {};
+  for (const stream of streams) {
+    const quality = normalizeQuality(stream.resolution);
+    if (quality === '4k') continue;
+    if (!byQuality[quality]) byQuality[quality] = [];
+    byQuality[quality].push(stream);
+  }
+
+  const qualities: QualityMap = {};
+  for (const [quality, qualityStreams] of Object.entries(byQuality)) {
+    const best = pickBestStream(qualityStreams);
+    if (best) {
+      qualities[quality as keyof typeof qualities] = {
+        type: 'mp4',
+        url: best.url,
+      };
+    }
+  }
+  return qualities;
+}
+
+function pickDefaultLanguage(languages: string[]): string {
+  const priority = ['en', 'original', 'eng', 'english'];
+  for (const pref of priority) {
+    const match = languages.find((lang) => lang === pref || lang.startsWith(pref));
+    if (match) return match;
+  }
+  return languages[0];
+}
+
 async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promise<SourcererOutput> {
   const apiKey = getDebridToken();
   if (!apiKey) {
@@ -155,29 +223,33 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
 
   ctx.progress(66);
 
-  const qualities: Partial<Record<'4k' | 1080 | 720 | 480 | 360 | 'unknown', { type: 'mp4'; url: string }>> = {};
-
-  const byQuality: Record<string, DebridParsedStream[]> = {};
+  const byLanguage: Record<string, DebridParsedStream[]> = {};
   for (const stream of allStreams) {
-    const quality = normalizeQuality(stream.resolution);
-    if (!byQuality[quality]) byQuality[quality] = [];
-    byQuality[quality].push(stream);
+    const language = getStreamLanguage(stream);
+    if (!byLanguage[language]) byLanguage[language] = [];
+    byLanguage[language].push(stream);
   }
 
-  for (const [quality, streams] of Object.entries(byQuality)) {
-    if (quality === '4k') continue;
-    const best = pickBestStream(streams);
-    if (best) {
-      qualities[quality as keyof typeof qualities] = {
-        type: 'mp4',
-        url: best.url,
-      };
-    }
-  }
+  const languageKeys = Object.keys(byLanguage);
+  const defaultLanguage = pickDefaultLanguage(languageKeys);
+  const qualities = buildQualitiesFromStreams(byLanguage[defaultLanguage] ?? allStreams);
 
   if (Object.keys(qualities).length === 0) {
     throw new NotFoundError('No browser-compatible streams found');
   }
+
+  const audioVariants = languageKeys
+    .map((language) => {
+      const languageQualities = buildQualitiesFromStreams(byLanguage[language]);
+      if (Object.keys(languageQualities).length === 0) return null;
+      return {
+        id: language,
+        label: languageLabel(language),
+        language,
+        qualities: languageQualities,
+      };
+    })
+    .filter((variant): variant is NonNullable<typeof variant> => variant !== null);
 
   ctx.progress(100);
 
@@ -188,6 +260,7 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
         id: 'primary',
         type: 'file',
         qualities,
+        audioVariants: audioVariants.length > 1 ? audioVariants : undefined,
         captions: [],
         flags: [flags.CORS_ALLOWED],
         skipValidation: true,

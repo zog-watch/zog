@@ -6,9 +6,11 @@ import { MakeSlice } from "@/stores/player/slices/types";
 import {
   SourceQuality,
   SourceSliceSource,
+  SourceFileStream,
   selectQuality,
 } from "@/stores/player/utils/qualities";
 import { useQualityStore } from "@/stores/quality";
+import { useLanguageStore } from "@/stores/language";
 import googletranslate from "@/utils/translation/googletranslate";
 import { translate } from "@/utils/translation/index";
 import { ValuesOf } from "@/utils/typeguard";
@@ -120,6 +122,7 @@ export interface SourceSlice {
     startAt: number,
   ): void;
   switchQuality(quality: SourceQuality): void;
+  changeAudioTrack(track: AudioTrack): void;
   setMeta(meta: PlayerMeta, status?: PlayerStatus): void;
   setCaption(caption: Caption | null): void;
   setSourceId(id: string | null): void;
@@ -160,6 +163,28 @@ export function getMediaKey(meta: PlayerMeta | null): string | null {
 
   // Fallback if show data is incomplete
   return `${meta.type}-${meta.tmdbId}`;
+}
+
+function getFileStreamForSelection(
+  source: Extract<SourceSliceSource, { type: "file" }>,
+  quality: SourceQuality | null,
+  audioTrackId: string | null | undefined,
+): SourceFileStream | undefined {
+  const qualityKey = quality ?? "1080";
+  if (audioTrackId && source.audioVariants) {
+    const variant = source.audioVariants.find((v) => v.id === audioTrackId);
+    const fromVariant =
+      variant?.qualities[qualityKey] ??
+      variant?.qualities["1080"] ??
+      Object.values(variant?.qualities ?? {})[0];
+    if (fromVariant) return fromVariant;
+  }
+
+  return (
+    source.qualities[qualityKey] ??
+    source.qualities["1080"] ??
+    Object.values(source.qualities)[0]
+  );
 }
 
 export function metaToScrapeMedia(meta: PlayerMeta): ScrapeMedia {
@@ -266,9 +291,48 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
     startAt: number,
   ) {
     let qualities: string[] = [];
-    if (stream.type === "file") qualities = Object.keys(stream.qualities);
+    if (stream.type === "file") {
+      if (stream.audioVariants?.length) {
+        const qualitySet = new Set<string>();
+        stream.audioVariants.forEach((variant) => {
+          Object.keys(variant.qualities).forEach((quality) => qualitySet.add(quality));
+        });
+        qualities = Array.from(qualitySet);
+      } else {
+        qualities = Object.keys(stream.qualities);
+      }
+    }
     const qualityPreferences = useQualityStore.getState();
-    const loadableStream = selectQuality(stream, qualityPreferences.quality);
+    let loadableStream = selectQuality(stream, qualityPreferences.quality);
+
+    let preferredAudioTrack: AudioTrack | null = null;
+    if (stream.type === "file" && stream.audioVariants?.length) {
+      const preferredLanguage = useLanguageStore.getState().language;
+      const preferredVariant =
+        stream.audioVariants.find(
+          (variant) =>
+            variant.language === preferredLanguage ||
+            variant.id === preferredLanguage,
+        ) ?? stream.audioVariants[0];
+      if (preferredVariant) {
+        preferredAudioTrack = {
+          id: preferredVariant.id,
+          label: preferredVariant.label,
+          language: preferredVariant.language,
+        };
+        const preferredFileStream = getFileStreamForSelection(
+          stream,
+          loadableStream.quality,
+          preferredVariant.id,
+        );
+        if (preferredFileStream) {
+          loadableStream = {
+            stream: preferredFileStream,
+            quality: loadableStream.quality,
+          };
+        }
+      }
+    }
 
     set((s) => {
       s.source = stream;
@@ -277,11 +341,25 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
       s.captionList = captions;
       s.interface.error = undefined;
       s.status = playerStatus.PLAYING;
-      s.audioTracks = [];
-      s.currentAudioTrack = null;
+      if (stream.type === "file" && stream.audioVariants?.length) {
+        s.audioTracks = stream.audioVariants.map((variant) => ({
+          id: variant.id,
+          label: variant.label,
+          language: variant.language,
+        }));
+        s.currentAudioTrack = preferredAudioTrack;
+      } else {
+        s.audioTracks = [];
+        s.currentAudioTrack = null;
+      }
     });
     const store = get();
-    store.redisplaySource(startAt);
+    store.display?.load({
+      source: loadableStream.stream,
+      startAt,
+      automaticQuality: qualityPreferences.quality.automaticQuality,
+      preferredQuality: qualityPreferences.quality.lastChosenQuality,
+    });
 
     // Trigger external subtitle scraping after stream is loaded
     // This runs asynchronously so it doesn't block the stream loading
@@ -297,12 +375,21 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
       automaticQuality: qualityPreferences.quality.automaticQuality,
       lastChosenQuality: qualityPreferences.quality.lastChosenQuality,
     });
+    let streamToLoad = loadableStream.stream;
+    if (store.source.type === "file") {
+      const fileStream = getFileStreamForSelection(
+        store.source,
+        loadableStream.quality,
+        store.currentAudioTrack?.id,
+      );
+      if (fileStream) streamToLoad = fileStream;
+    }
     set((s) => {
       s.interface.error = undefined;
       s.status = playerStatus.PLAYING;
     });
     store.display?.load({
-      source: loadableStream.stream,
+      source: streamToLoad,
       startAt,
       automaticQuality: qualityPreferences.quality.automaticQuality,
       preferredQuality: qualityPreferences.quality.lastChosenQuality,
@@ -312,7 +399,11 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
     const store = get();
     if (!store.source) return;
     if (store.source.type === "file") {
-      const selectedQuality = store.source.qualities[quality];
+      const selectedQuality = getFileStreamForSelection(
+        store.source,
+        quality,
+        store.currentAudioTrack?.id,
+      );
       if (!selectedQuality) return;
       set((s) => {
         s.currentQuality = quality;
@@ -328,6 +419,39 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
     } else if (store.source.type === "hls") {
       store.display?.changeQuality(false, quality);
     }
+  },
+  changeAudioTrack(track) {
+    const store = get();
+    if (!store.source) return;
+
+    if (store.source.type === "file" && store.source.audioVariants?.length) {
+      const variant = store.source.audioVariants.find((v) => v.id === track.id);
+      if (!variant) return;
+
+      const quality = store.currentQuality ?? "1080";
+      const fileStream = getFileStreamForSelection(
+        store.source,
+        quality,
+        track.id,
+      );
+      if (!fileStream) return;
+
+      set((s) => {
+        s.currentAudioTrack = track;
+        s.status = playerStatus.PLAYING;
+        s.interface.error = undefined;
+      });
+
+      store.display?.load({
+        source: fileStream,
+        startAt: store.progress.time,
+        automaticQuality: false,
+        preferredQuality: quality,
+      });
+      return;
+    }
+
+    store.display?.changeAudioTrack(track);
   },
   enableAutomaticQuality() {
     const store = get();

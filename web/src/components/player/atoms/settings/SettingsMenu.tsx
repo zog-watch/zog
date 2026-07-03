@@ -20,6 +20,7 @@ export function SettingsMenu({ id }: { id: string }) {
   const router = useOverlayRouter(id);
   const currentQuality = usePlayerStore((s) => s.currentQuality);
   const currentAudioTrack = usePlayerStore((s) => s.currentAudioTrack);
+  const audioTracks = usePlayerStore((s) => s.audioTracks);
   const selectedCaptionLanguage = usePlayerStore(
     (s) => s.caption.selected?.language,
   );
@@ -119,15 +120,16 @@ export function SettingsMenu({ id }: { id: string }) {
             {selectedLanguagePretty ?? t("player.menus.subtitles.offChoice")}
           </span>
         </Menu.ChevronLink>
-        {currentAudioTrack ? (
+        {audioTracks.length > 0 ? (
           <Menu.ChevronLink
             box
             onClick={() => router.navigate("/audio")}
             rightText={selectedAudioLanguagePretty ?? undefined}
+            disabled={audioTracks.length <= 1}
           >
             {t("player.menus.settings.audioItem")}
             <span className="text-type-secondary text-sm">
-              {selectedAudioLanguagePretty}
+              {selectedAudioLanguagePretty ?? t("player.menus.audio.default")}
             </span>
           </Menu.ChevronLink>
         ) : (

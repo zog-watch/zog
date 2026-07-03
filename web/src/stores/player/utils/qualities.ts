@@ -11,6 +11,13 @@ export type SourceFileStream = {
   url: string;
 };
 
+export type SourceFileAudioVariant = {
+  id: string;
+  label: string;
+  language: string;
+  qualities: Partial<Record<SourceQuality, SourceFileStream>>;
+};
+
 export type LoadableSource = {
   type: StreamType;
   url: string;
@@ -22,6 +29,7 @@ export type SourceSliceSource =
   | {
       type: "file";
       qualities: Partial<Record<SourceQuality, SourceFileStream>>;
+      audioVariants?: SourceFileAudioVariant[];
       headers?: Stream["headers"];
       preferredHeaders?: Stream["preferredHeaders"];
     }

@@ -51,6 +51,7 @@ export function convertRunoutputToSource(out: {
     return {
       type: "file",
       qualities,
+      audioVariants: out.stream.audioVariants,
       headers: out.stream.headers,
       preferredHeaders: out.stream.preferredHeaders,
     };

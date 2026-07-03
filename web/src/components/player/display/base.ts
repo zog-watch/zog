@@ -134,6 +134,36 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
     emit("qualities", convertedLevels);
   }
 
+  function reportNativeFileAudioTracks(): boolean {
+    if (!videoElement || source?.type !== "mp4") return false;
+    const trackList = (videoElement as HTMLVideoElement & {
+      audioTracks?: {
+        length: number;
+        [index: number]: { enabled: boolean; label: string; language: string };
+      };
+    }).audioTracks;
+    if (!trackList || trackList.length <= 1) return false;
+
+    const tracks = Array.from({ length: trackList.length }, (_, index) => {
+      const track = trackList[index];
+      return {
+        id: index.toString(),
+        label: track.label || track.language || `Track ${index + 1}`,
+        language: track.language || "unknown",
+      };
+    });
+
+    const enabledIndex = Array.from({ length: trackList.length }, (_, index) => index).find(
+      (index) => trackList[index].enabled,
+    );
+    const currentTrack = tracks[enabledIndex ?? 0];
+    if (!currentTrack) return false;
+
+    emit("audiotracks", tracks);
+    emit("changedaudiotrack", currentTrack);
+    return true;
+  }
+
   function reportAudioTracks() {
     if (!hls) return;
     const currentLanguage = useLanguageStore.getState().language;
@@ -485,7 +515,9 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       }
     });
     videoElement.addEventListener("loadedmetadata", () => {
-      if (
+      if (source?.type === "mp4" && reportNativeFileAudioTracks()) {
+        // Native embedded audio tracks handled above
+      } else if (
         source?.type === "hls" &&
         videoElement &&
         canPlayHlsNatively(videoElement)
@@ -1058,17 +1090,32 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       return promise;
     },
     changeAudioTrack(track) {
-      if (!hls) return;
-      const audioTrack = hls?.audioTracks.find(
-        (t) => t.id.toString() === track.id,
-      );
-      if (!audioTrack) return;
-      hls.audioTrack = hls.audioTracks.indexOf(audioTrack);
-      emit("changedaudiotrack", {
-        id: audioTrack.id.toString(),
-        label: audioTrack.name,
-        language: audioTrack.lang ?? "unknown",
-      });
+      if (hls) {
+        const audioTrack = hls?.audioTracks.find(
+          (t) => t.id.toString() === track.id,
+        );
+        if (!audioTrack) return;
+        hls.audioTrack = hls.audioTracks.indexOf(audioTrack);
+        emit("changedaudiotrack", {
+          id: audioTrack.id.toString(),
+          label: audioTrack.name,
+          language: audioTrack.lang ?? "unknown",
+        });
+        return;
+      }
+
+      const trackList = (videoElement as HTMLVideoElement & {
+        audioTracks?: {
+          length: number;
+          [index: number]: { enabled: boolean; label: string; language: string };
+        };
+      })?.audioTracks;
+      if (trackList && trackList.length > 1) {
+        for (let index = 0; index < trackList.length; index += 1) {
+          trackList[index].enabled = index.toString() === track.id;
+        }
+        emit("changedaudiotrack", track);
+      }
     },
   };
 }
