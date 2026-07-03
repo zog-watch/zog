@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
+    "@aws-sdk/lib-storage": "^3.658.0",
     "@aws-sdk/s3-request-presigner": "^3.658.0",
+    "better-sqlite3": "^11.3.0",
     "h3": "^1.15.1",
     "nitropack": "^2.11.9"
   },

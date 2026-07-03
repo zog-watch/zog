@@ -1,3 +1,5 @@
+import { Upload } from "@aws-sdk/lib-storage";
+
 import {
   getEntry,
   listAll,
@@ -10,8 +12,9 @@ import {
 import {
   deleteObject,
   getSignedDownloadUrl,
+  getS3Client,
+  getBucket,
   headObject,
-  putObject,
 } from "./s3";
 import {
   ensureTorrentIdByHash,
@@ -20,7 +23,12 @@ import {
 } from "./torbox";
 
 const DOWNLOAD_TIMEOUT_MS = 30 * 60 * 1000;
-const MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024 * 1024; // 50GB hard cap per file
+// hard cap per file: 100GB (cache total cap is 200GB, so any single file
+// can be at most half the budget)
+const MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024 * 1024;
+// 5GB is the threshold above which PutObject with a body stream fails and
+// we have to use multipart upload
+const MULTIPART_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
 function sanitizeKey(raw: string): string {
   if (!/^[a-zA-Z0-9._-]{1,128}$/.test(raw)) {
@@ -161,19 +169,62 @@ export async function downloadAndCache(req: CacheRequest): Promise<FetchResult> 
       throw new Error(`File too large: ${contentLength} bytes`);
     }
 
-    const buf = new Uint8Array(await res.arrayBuffer());
-    if (buf.byteLength > MAX_DOWNLOAD_BYTES) {
-      throw new Error(`File too large: ${buf.byteLength} bytes`);
+    // Track bytes as we consume the upstream body
+    const body = res.body;
+    if (!body) {
+      throw new Error("Upstream returned no body");
     }
+    let bytes = 0;
+    const countingBody = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        const reader = body.getReader();
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (value) {
+              bytes += value.byteLength;
+              if (bytes > MAX_DOWNLOAD_BYTES) {
+                try { controller.error(new Error(`File too large (>${MAX_DOWNLOAD_BYTES})`)); } catch {}
+                try { reader.cancel(); } catch {}
+                return;
+              }
+              controller.enqueue(value);
+            }
+          }
+          controller.close();
+        } catch (err) {
+          try { controller.error(err); } catch {}
+        }
+      },
+      cancel() {
+        try { body.cancel(); } catch {}
+      },
+    });
 
-    await putObject(objectKey, buf, contentType);
+    // Stream directly to S3 — no buffering of the whole file in memory
+    const client = getS3Client();
+    const bucket = getBucket();
+    const upload = new Upload({
+      client,
+      params: {
+        Bucket: bucket,
+        Key: objectKey,
+        Body: countingBody,
+        ContentType: contentType,
+      },
+      queueSize: 4,
+      partSize: 16 * 1024 * 1024,
+      leavePartsOnError: false,
+    });
+    await upload.done();
 
     const finishedAt = Date.now();
     upsertEntry({
       key,
       object_key: objectKey,
       content_type: contentType,
-      size_bytes: buf.byteLength,
+      size_bytes: bytes,
       created_at: now,
       last_accessed_at: finishedAt,
       status: "ready",
@@ -187,7 +238,7 @@ export async function downloadAndCache(req: CacheRequest): Promise<FetchResult> 
       status: "ready",
       url,
       contentType,
-      size: buf.byteLength,
+      size: bytes,
       cached: false,
     };
   } catch (err: any) {
