@@ -15,6 +15,7 @@ interface Config {
   TMDB_READ_API_KEY: string;
   CORS_PROXY_URL: string;
   M3U8_PROXY_URL: string;
+  CACHE_URL: string;
   NORMAL_ROUTER: boolean;
   BACKEND_URL: string;
   DISALLOWED_IDS: string;
@@ -72,6 +73,7 @@ export interface RuntimeConfig {
   NORMAL_ROUTER: boolean;
   PROXY_URLS: string[];
   M3U8_PROXY_URLS: string[];
+  CACHE_URL: string | null;
   BACKEND_URL: string | null;
   BACKEND_URLS: string[];
   DISALLOWED_IDS: string[];
@@ -132,6 +134,7 @@ const env: Record<keyof Config, undefined | string> = {
   DMCA_EMAIL: import.meta.env.VITE_DMCA_EMAIL,
   CORS_PROXY_URL: import.meta.env.VITE_CORS_PROXY_URL,
   M3U8_PROXY_URL: import.meta.env.VITE_M3U8_PROXY_URL,
+  CACHE_URL: import.meta.env.VITE_CACHE_URL,
   NORMAL_ROUTER: import.meta.env.VITE_NORMAL_ROUTER,
   BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
   DISALLOWED_IDS: import.meta.env.VITE_DISALLOWED_IDS,
@@ -237,6 +240,7 @@ export function conf(): RuntimeConfig {
       .split(",")
       .map((v) => v.trim())
       .filter((v) => v.length > 0),
+    CACHE_URL: getKey("CACHE_URL", ""),
     NORMAL_ROUTER: getKey("NORMAL_ROUTER", "false") === "true",
     HAS_ONBOARDING: getKey("HAS_ONBOARDING", "false") === "true",
     ALLOW_AUTOPLAY: getKey("ALLOW_AUTOPLAY", "false") === "true",

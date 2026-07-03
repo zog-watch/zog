@@ -20,6 +20,10 @@ import {
   createMP4ProxyUrl,
   isUrlAlreadyProxied,
 } from "@/components/player/utils/proxy";
+import {
+  buildCacheKey,
+  requestCachedStream,
+} from "@/components/player/utils/cache";
 import { useLanguageStore } from "@/stores/language";
 import { usePreferencesStore } from "@/stores/preferences";
 import {
@@ -427,6 +431,33 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
     }
   }
 
+  async function applyCacheAndSetSource(ops: LoadableSource | null) {
+    if (!ops) {
+      setSource();
+      return;
+    }
+
+    if (
+      isUrlAlreadyProxied(ops.url) ||
+      ops.url.startsWith("blob:") ||
+      ops.url.startsWith("data:")
+    ) {
+      setSource();
+      return;
+    }
+
+    const cacheKey = buildCacheKey(undefined, ops.url, ops.type);
+    try {
+      const cached = await requestCachedStream(cacheKey, ops.url, ops.headers ?? {}, undefined);
+      if (cached) {
+        source = { ...ops, url: cached.url };
+      }
+    } catch (err) {
+      console.warn("[cache] failed, falling back to direct URL", err);
+    }
+    setSource();
+  }
+
   function setSource() {
     if (!videoElement || !source) return;
     setupSource(videoElement, source);
@@ -803,7 +834,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       startAt = ops.startAt;
       // Set autoplay flag if starting from beginning (indicates autoplay transition)
       shouldAutoplayAfterLoad = ops.startAt === 0;
-      setSource();
+      void applyCacheAndSetSource(ops.source);
     },
     changeQuality(newAutomaticQuality, newPreferredQuality) {
       if (source?.type !== "hls") return;
