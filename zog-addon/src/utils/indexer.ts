@@ -41,7 +41,7 @@ export async function searchIndexer(
       ? btoa(json).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_")
       : Buffer.from(json).toString("base64").replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
   const url = `${BASE}/${b64}/stream/${type}/${id}.json`;
-  console.log(`[indexer] calling ${url.slice(0, 120)}...`);
+  console.log(`[indexer] calling full url: ${url}`);
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (zognet addon)" },
   });
